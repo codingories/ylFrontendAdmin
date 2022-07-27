@@ -1,0 +1,22 @@
+{
+  "name": "my-vue-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.2.36",
+    "@vitejs/plugin-vue": "^3.0.0",
+    "axios": "^0.27.2",
+    "element-plus": "^2.2.10",
+    "vite": "^3.0.0",
+    "vue-router": "^4.0.13"
+  },
+  "devDependencies": {
+    "sass": "^1.54.0"
+  }
+}
