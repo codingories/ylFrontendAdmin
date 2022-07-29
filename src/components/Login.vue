@@ -20,7 +20,23 @@ const goHome = () => {
 <script>
 
 export default {
-  name: 'Login'
+  name: 'Login',
+  mounted() {
+    // this.$request({
+    //   method: 'get',
+    //   url: 'login',
+    //   data: {
+    //     name: 'Jack'
+    //   }
+    // }).then(res => {
+    //   console.log('res', res)
+    // }, fail => {
+    //   console.log('fail', fail)
+    // })
+    this.$request.get('/login',{name:'jack'}).then((res)=>{
+      console.log('fuck', res)
+    })
+  }
 }
 </script>
 

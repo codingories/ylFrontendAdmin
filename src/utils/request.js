@@ -33,6 +33,7 @@ service.interceptors.request.use((req) => {
 // 响应拦截
 service.interceptors.response.use((res) => {
   const {code, data, msg} = res.data
+  console.log('code', code)
   if (code === 200) {
     // 不需要在每个页面写res.data
     return data;
@@ -59,7 +60,24 @@ service.interceptors.response.use((res) => {
 
 function request(options) {
   // get和post不一样,post请求参数叫data,get的时候参数叫params，我们这边可以打平，可以都叫data
-  service(options)
+  options.method = options.method || 'get'
+  if (options.method.toLowerCase() === 'get') {
+    options.params = options.data
+  }
+  // 这样写是为了确保线上环境api不会出错
+  if (config.env === 'prod') {
+    service.defaults.baseURL = config.baseApi
+  } else {
+    service.defaults.baseURL = config.mock ? config.mockApi : config.baseApi
+  }
+  return service(options)
 }
+
+['get', 'post', 'put', 'delete', 'patch'].forEach((item) => {
+  request[item] = (url, data, options) => {
+    // options用于扩展，可以传入loading, timeOut等等
+    return request({url, data, method: item, ...options})
+  }
+})
 
 export default request;
