@@ -45,8 +45,8 @@ export default {
   .img {
     margin-left: 105px;
     background-image: url('../assets/images/welcome.png');
-    width: 506px;
-    height: 370px;
+    width: 306px;
+    height: 170px;
   }
 }
 </style>
