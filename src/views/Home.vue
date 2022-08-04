@@ -24,7 +24,6 @@ export default {
 <style lang="scss">
 .basic-layout {
   position: relative;
-
   .nav-side {
     position: fixed;
     width: 200px;
@@ -36,7 +35,6 @@ export default {
   }
 
   .content-right {
-    border: 1px solid red;
     margin-left: 200px;
 
     .nav-top {
@@ -44,7 +42,6 @@ export default {
       line-height: 50px;
       display: flex;
       justify-content: space-between;
-      border: 1px solid green;
       border-bottom: 1px solid #ddd;
       padding: 0 20px;
     }
@@ -53,12 +50,9 @@ export default {
       background: #eef0f3;
       padding: 20px;
       height: calc(100vh - 50px);
-      border: 1px solid purple;
-
       .main-page {
         height: 100%;
         background: #fff;
-        border: 2px solid orange;
       }
     }
   }
