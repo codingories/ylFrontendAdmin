@@ -5,24 +5,25 @@ import './assets/style/index.scss'
 import './assets/style/reset.css'
 import App from './App.vue'
 import router from "./router/index.js"
-import axios from "axios"
-import config from './config'
 import request from "./utils/request.js"
 import storage from "./utils/storage.js"
-// axios.get(config.mockApi + '/login').then((res)=>{
-//   console.log('res', res)
-// })
+import store from "./store"
+
+
+import api from "./api"
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 
-console.log("环境变量=>", import.meta.env)
 const app = createApp(App);
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 app.use(ElementPlus)
+app.use(store)
+
 app.config.globalProperties.$request = request
+app.config.globalProperties.$api = api
 app.config.globalProperties.$storage = storage
 
 app.use(router).mount('#app')

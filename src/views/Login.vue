@@ -1,16 +1,16 @@
 <template>
   <div class="login-wrapper">
     <div class="modal">
-      <el-form>
+      <el-form ref="userFormRef" :model="user" status-icon :rules="rules">
         <div class="title">火星</div>
-        <el-form-item>
-          <el-input type="text" prefix-icon="User"/>
+        <el-form-item prop="userName">
+          <el-input type="text" prefix-icon="User" v-model="user.userName"/>
+        </el-form-item>
+        <el-form-item prop="userPwd">
+          <el-input type="password" prefix-icon="UserFilled" v-model="user.userPwd"/>
         </el-form-item>
         <el-form-item>
-          <el-input type="password" prefix-icon="UserFilled"/>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" class="btn-login">
+          <el-button type="primary" class="btn-login" @click="login(userFormRef)">
             登录
           </el-button>
         </el-form-item>
@@ -21,37 +21,50 @@
 
 
 <script setup>
+import {reactive, ref} from "vue"
+import api from '../api'
 import {useRouter} from "vue-router"
-
+import {useStore} from "vuex"
+const user = reactive({
+  userName: "",
+  userPwd: ""
+})
+const userFormRef = ref()
 const router = useRouter()
-
-const goHome = () => {
-  router.push('/welcome')
+const rules = reactive({
+  userName: [
+    {required: true, message: '请输入用户名', trigger: 'blur'},
+  ],
+  userPwd: [
+    {required: true, message: '请输入密码', trigger: 'blur'},
+  ]
+})
+const store = useStore()
+const login = async (formEl) => {
+  if (!formEl) {
+    return
+  }
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      api.login(user).then(res=>{
+        console.log('res 2222', res)
+        store.commit('saveUserInfo', res)
+        console.log('2222')
+        console.log('router',router)
+        console.log('333')
+        router.push('/welcome')
+      })
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
 }
-
 </script>
-
 
 <script>
 
 export default {
   name: 'Login',
-  mounted() {
-    // this.$request({
-    //   method: 'get',
-    //   url: 'login',
-    //   data: {
-    //     name: 'Jack'
-    //   }
-    // }).then(res => {
-    //   console.log('res', res)
-    // }, fail => {
-    //   console.log('fail', fail)
-    // })
-    this.$request.get('/login', {name: 'jack'}).then((res) => {
-      console.log('fuck', res)
-    })
-  }
 }
 </script>
 
@@ -64,18 +77,21 @@ export default {
   background-color: #f9fcff;
   width: 100vw;
   height: 100vh;
+
   .modal {
     width: 500px;
     padding: 50px;
     background-color: #fff;
     border-radius: 4px;
     box-shadow: 0 0 10px 3px #c7c9cb4d;
+
     .title {
       font-size: 50px;
       line-height: 1.5;
       text-align: center;
       margin-bottom: 30px;
     }
+
     .btn-login {
       width: 100%;
     }
