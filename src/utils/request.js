@@ -5,6 +5,7 @@ import axios from "axios"
 import config from "../config/index.js"
 import {ElMessage} from "element-plus"
 import router from "../router/index.js"
+console.log('fuck 222 config', config)
 
 const TOKEN_INVALID = 'Token认证失败 请重新登录'
 const NETWORK_ERROR = '网络请求异常，请稍后再试'
@@ -38,7 +39,7 @@ service.interceptors.response.use((res) => {
     // 不需要在每个页面写res.data
     return data;
     // 未登录
-  } else if (code === 40001) {
+  } else if (code === 50001) {
     // 也可以用msg，后端反的，也可以前端自己定义
     ElMessage.error(TOKEN_INVALID)
     // 看完消息再跳转
@@ -64,6 +65,7 @@ function request(options) {
   if (options.method.toLowerCase() === 'get') {
     options.params = options.data
   }
+  console.log('fuck options.mocks', options.mock)
   // 局部控制mock
   if(typeof options.mock !== 'undefined') {
     config.mock = options.mock
