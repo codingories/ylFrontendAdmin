@@ -47,11 +47,7 @@ const login = async (formEl) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       api.login(user).then(res=>{
-        console.log('res 2222', res)
         store.commit('saveUserInfo', res)
-        console.log('2222')
-        console.log('router',router)
-        console.log('333')
         router.push('/welcome')
       })
     } else {

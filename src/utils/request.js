@@ -5,7 +5,6 @@ import axios from "axios"
 import config from "../config/index.js"
 import {ElMessage} from "element-plus"
 import router from "../router/index.js"
-console.log('fuck 222 config', config)
 
 const TOKEN_INVALID = 'Token认证失败 请重新登录'
 const NETWORK_ERROR = '网络请求异常，请稍后再试'
@@ -34,7 +33,6 @@ service.interceptors.request.use((req) => {
 // 响应拦截
 service.interceptors.response.use((res) => {
   const {code, data, msg} = res.data
-  console.log('code', code)
   if (code === 200) {
     // 不需要在每个页面写res.data
     return data;
@@ -65,7 +63,6 @@ function request(options) {
   if (options.method.toLowerCase() === 'get') {
     options.params = options.data
   }
-  console.log('fuck options.mocks', options.mock)
   // 局部控制mock
   if(typeof options.mock !== 'undefined') {
     config.mock = options.mock
