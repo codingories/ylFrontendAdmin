@@ -183,19 +183,14 @@ export default {
         display: flex;
         align-items: center;
         .menu-fold {
-          margin-top: 4px;
-          //border: 1px solid green;
+          display: flex;
           margin-right: 15px;
           font-size: 18px;
         }
       }
-
       .user-info {
-        //border: 1px solid red;
         .down {
-          //border: 1px solid blue;
           line-height: 50px;
-
         }
         .notice {
           line-height: 30px;
