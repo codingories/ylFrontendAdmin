@@ -15,34 +15,7 @@
           class="nav-menu"
           :collapse="isCollapse"
       >
-        <el-sub-menu index="1">
-          <template #title>
-            <el-icon>
-              <setting/>
-            </el-icon>
-            <span>系统管理</span>
-          </template>
-          <el-menu-item index="1-1">
-            <span>用户管理</span>
-          </el-menu-item>
-          <el-menu-item index="1-2">
-            <span>菜单管理</span>
-          </el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="2">
-          <template #title>
-            <el-icon>
-              <setting/>
-            </el-icon>
-            <span>审批管理</span>
-          </template>
-          <el-menu-item index="2-1">
-            <span>休假申请</span>
-          </el-menu-item>
-          <el-menu-item index="2-2">
-            <span>待我审批</span>
-          </el-menu-item>
-        </el-sub-menu>
+        <TreeMenu :user-menu="userMenu"></TreeMenu>
       </el-menu>
     </div>
     <div :class="['content-right', isCollapse?'fold':'unfold']">
@@ -57,7 +30,7 @@
         </div>
 
         <div class="user-info">
-          <el-badge :is-dot="true" class="notice" type="danger">
+          <el-badge :is-dot="Boolean(noticeCount)" class="notice" type="danger">
             <el-icon>
               <bell/>
             </el-icon>
@@ -90,9 +63,11 @@
 
 <script setup>
 
-import {reactive, ref} from "vue"
+import {onMounted, ref} from "vue"
 import {useStore} from "vuex"
 import {useRouter} from "vue-router"
+import api from "../api/index.js"
+import TreeMenu from "./TreeMenu.vue"
 
 const store = useStore()
 const router = useRouter()
@@ -100,10 +75,30 @@ const isCollapse = ref(false)
 const toggle = () => {
   isCollapse.value = !isCollapse.value
 }
-const userInfo = reactive({
-  userName: "Ories",
-  userEmail: "tellt@126.com"
+const userInfo = store.state.userInfo
+const noticeCount = ref(0)
+const userMenu = ref([])
+onMounted(() => {
+  getNoticeCount()
+  getMenuList()
 })
+
+const getNoticeCount = async () => {
+  try {
+    noticeCount.value = await api.noticeCount()
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const getMenuList = async () => {
+  try {
+    userMenu.value = await api.getMenuList()
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 const handleLogout = (key) => {
   if (key === 'email') return;
   store.commit('saveUserInfo', '')
@@ -151,10 +146,12 @@ export default {
       border-right: none;
       height: calc(100vh - 50px);
     }
+
     //合并展开
     &.fold {
       width: 64px;
     }
+
     //合并展开
     &.unfold {
       width: 200px;
@@ -167,10 +164,12 @@ export default {
     &.fold {
       margin-left: 64px;
     }
+
     //合并展开
     &.unfold {
       margin-left: 200px;
     }
+
     .nav-top {
       height: 50px;
       line-height: 50px;
@@ -182,20 +181,24 @@ export default {
       .nav-left {
         display: flex;
         align-items: center;
+
         .menu-fold {
           display: flex;
           margin-right: 15px;
           font-size: 18px;
         }
       }
+
       .user-info {
         .down {
           line-height: 50px;
         }
+
         .notice {
           line-height: 30px;
           margin-right: 15px;
         }
+
         .user-link {
           cursor: pointer;
           color: #409fff;
