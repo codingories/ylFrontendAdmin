@@ -6,8 +6,10 @@
         <img src="../assets/images/logo.png" alt="">
         <span>Manager</span>
       </div>
+<!--      {{activeMenu}}-->
       <!--      导航菜单-->
       <el-menu
+          :default-active = "activeMenu"
           background-color="#001529"
           text-color="#fff"
           router
@@ -78,6 +80,8 @@ const toggle = () => {
 const userInfo = store.state.userInfo
 const noticeCount = ref(0)
 const userMenu = ref([])
+const state = useStore()
+let activeMenu = ref(location.hash.slice(1))
 onMounted(() => {
   getNoticeCount()
   getMenuList()

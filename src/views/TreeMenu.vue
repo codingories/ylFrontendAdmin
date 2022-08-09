@@ -1,45 +1,34 @@
 <template>
-  <el-sub-menu index="1">
-    <template #title>
-      <el-icon>
-        <setting/>
-      </el-icon>
-      <span>系统管理</span>
-    </template>
-    <el-menu-item index="1-1">
-      <span>用户管理</span>
+  <template v-for="menu in userMenu">
+    <el-sub-menu v-if="menu.children && menu.children.length > 0 && menu.children[0].menuType==='1'" :key="menu._id" :index="menu.path">
+      <template #title>
+        <el-icon>
+          <component :is="menu.icon"/>
+        </el-icon>
+        <span>{{ menu.menuName }}</span>
+      </template>
+      <!--      如果有children继续放到menu.children里面-->
+      <tree-menu :user-menu="menu.children"/>
+      <!--      不是父菜单就是子菜单-->
+    </el-sub-menu>
+    <el-menu-item v-else-if="menu.menuType==='1'" :index="menu.path" :key="menu._id">
+      <span>{{ menu.menuName }}</span>
     </el-menu-item>
-    <el-menu-item index="1-2">
-      <span>菜单管理</span>
-    </el-menu-item>
-  </el-sub-menu>
-  <el-sub-menu index="2">
-    <template #title>
-      <el-icon>
-        <setting/>
-      </el-icon>
-      <span>审批管理</span>
-    </template>
-    <el-menu-item index="2-1">
-      <span>休假申请</span>
-    </el-menu-item>
-    <el-menu-item index="2-2">
-      <span>待我审批</span>
-    </el-menu-item>
-  </el-sub-menu>
+  </template>
 </template>
 
 <script lang="ts" setup>
 import {defineProps} from 'vue';
 
+
 defineProps({
   userMenu: {
     type: Array,
     default() {
-      return []
+      return [];
     }
   }
-})
+});
 </script>
 
 <style>
