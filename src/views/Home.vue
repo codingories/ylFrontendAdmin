@@ -28,7 +28,9 @@
               <Fold/>
             </el-icon>
           </div>
-          <div class="bread">面包屑</div>
+          <div class="bread">
+            <bread-crumb></bread-crumb>
+          </div>
         </div>
 
         <div class="user-info">
@@ -70,6 +72,7 @@ import {useStore} from "vuex"
 import {useRouter} from "vue-router"
 import api from "../api/index.js"
 import TreeMenu from "./TreeMenu.vue"
+import BreadCrumb from "./BreadCrumb.vue"
 
 const store = useStore()
 const router = useRouter()
