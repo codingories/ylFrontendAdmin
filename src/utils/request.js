@@ -5,6 +5,7 @@ import axios from "axios"
 import config from "../config/index.js"
 import {ElMessage} from "element-plus"
 import router from "../router/index.js"
+import storage from "./storage.js"
 
 const TOKEN_INVALID = 'Token认证失败 请重新登录'
 const NETWORK_ERROR = '网络请求异常，请稍后再试'
@@ -20,14 +21,12 @@ const service = axios.create({
 
 // 请求拦截
 service.interceptors.request.use((req) => {
-  // 动态添加token，之后加
-  // TODO
   const headers = req.headers
+  const { token } = storage.getItem('userInfo')
   if (!headers.Authorization) {
-    headers.Authorization = 'Bearer xxxxxx'
+    headers.Authorization = 'Bearer ' + token
   }
   return req;
-  // 其它比如时间戳转日期，都可以在这里做拦截
 })
 
 // 响应拦截
