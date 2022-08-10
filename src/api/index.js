@@ -17,6 +17,7 @@ export default {
       url: '/leave/count',
       method: 'get',
       data: {},
+      mock: true
     })
   },
   getMenuList() {
@@ -24,6 +25,7 @@ export default {
       url: '/menu/list',
       method: 'get',
       data: {},
+      mock: true
     })
   }
 }
