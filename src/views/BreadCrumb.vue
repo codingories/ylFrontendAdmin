@@ -20,7 +20,7 @@ import {computed, onMounted} from 'vue';
 const route = useRoute();
 
 onMounted(() => {
-  console.log('routes', route, JSON.stringify(route));
+  // console.log('routes', route, JSON.stringify(route));
   // 里面的matched表示当前页面所匹配的路由记录，比如当前是welcome，它会把它的上一级/也记录下来
 });
 const breadList = computed(()=>{
