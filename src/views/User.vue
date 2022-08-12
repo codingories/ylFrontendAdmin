@@ -26,9 +26,10 @@
     <div class="base-table">
       <div class="action">
         <el-button type="primary">新增</el-button>
-        <el-button type="danger">批量删除</el-button>
+        <el-button type="danger" @click="handlePatchDel">批量删除</el-button>
       </div>
       <el-table
+          @selection-change="handleSelectionChange"
           :data="userList">
         <el-table-column type="selection" width="55"/>
         <el-table-column
@@ -36,14 +37,16 @@
             :key="item.prop"
             :prop="item.prop"
             :label="item.label"
-            :width="item.width">
+            :width="item.width"
+            :formatter="item.formatter"
+        >
         </el-table-column>
         <el-table-column
             label="操作"
             width="150">
-          <template #default>
+          <template #default="scope">
             <el-button type="primary">编辑</el-button>
-            <el-button type="danger" size="small">删除</el-button>
+            <el-button type="danger" size="small" @click="handleDel(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -101,6 +104,41 @@ const getUserList = async () => {
 const handleQuery = () => {
   getUserList();
 };
+// 用户单个删除
+const handleDel = async (row) => {
+  await proxy.$api.userDel({
+    userIds: [row.userId]
+  });
+  proxy.$message.success('删除成功');
+  await getUserList();
+};
+
+const handleSelectionChange = (list) => {
+  let arr = [];
+  list.map(item => {
+    arr.push(item.userId);
+  });
+  checkedUserIds.value = arr;
+};
+// 选中用户列表的对象
+const checkedUserIds = ref([]);
+// 批量删除
+const handlePatchDel = async (row) => {
+  if (checkedUserIds.value.length === 0) {
+    proxy.$message.error('请选择要删除的用户');
+    return;
+  }
+  const res = await proxy.$api.userDel({
+    userIds: checkedUserIds.value
+  });
+  if (res.nModified > 0) {
+    proxy.$message.success('删除成功');
+    await getUserList();
+  } else {
+    proxy.$message.success('修改失败');
+  }
+};
+
 
 // 重置查询表单
 const handleReset = () => {
@@ -112,8 +150,8 @@ const handleReset = () => {
 // 分页事件处理
 const handleCurrentChange = (current) => {
   pager.pageNum = current;
-  getUserList()
-}
+  getUserList();
+};
 
 // 定义动态表格头
 const columns = reactive([
@@ -128,9 +166,22 @@ const columns = reactive([
   },
   {
     label: '用户角色', prop: 'role',
+    formatter(row, column, value) {
+      return {
+        0: '管理员',
+        1: '普通用户'
+      }[value];
+    }
   },
   {
-    label: '用户状态', prop: 'state'
+    label: '用户状态', prop: 'state',
+    formatter(row, column, value) {
+      return {
+        1: '在职',
+        2: '离职',
+        3: '所有'
+      }[value];
+    }
   },
   {
     label: '用户名', prop: 'userName',
