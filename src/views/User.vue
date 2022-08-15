@@ -2,12 +2,14 @@
   <div class="user-manage">
     <!--    <h3>用户管理</h3>-->
     <div class="query-form">
+
       <el-form :inline="true" :model="user" ref="form">
         <el-form-item label="用户ID" prop="userId">
           <el-input v-model="user.userId" placeholder="请输入用户ID"></el-input>
         </el-form-item>
         <el-form-item label="用户名称" prop="userName">
-          <el-input v-model="user.userName" placeholder="请输入用户名称"></el-input>
+          <el-input v-model="user.userName" placeholder="请输入用户名称"
+          ></el-input>
         </el-form-item>
         <el-form-item label="用户状态" prop="state">
           <el-select v-model="user.state">
@@ -45,7 +47,7 @@
             label="操作"
             width="150">
           <template #default="scope">
-            <el-button type="primary">编辑</el-button>
+            <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button type="danger" size="small" @click="handleDel(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -63,10 +65,14 @@
     <el-dialog v-model="showModal" title="用户新增">
       <el-form ref="dialogForm" :model="userForm" :label-width="100" :rules="rules">
         <el-form-item label="用户名" prop="userName">
-          <el-input v-model="userForm.userName" placeholder="请输入用户名称"/>
+          <el-input v-model="userForm.userName" placeholder="请输入用户名称"
+                    :disabled="action === 'edit'"
+          />
         </el-form-item>
         <el-form-item label="邮箱" prop="userEmail">
-          <el-input v-model="userForm.userEmail" placeholder="请输入用户邮箱">
+          <el-input v-model="userForm.userEmail" placeholder="请输入用户邮箱"
+                    :disabled="action === 'edit'"
+          >
             <template #append>
               @myCompany.com
             </template>
@@ -101,7 +107,7 @@
               v-model="userForm.deptId"
               placeholder="请选择所属部门"
               :options="deptList"
-              :props="{ checkStrictly: true, value: '_id', label: 'deptName' }"
+              :props="{ checkStrictly: true, value: '_id', label: 'deptName', expandTrigger: 'click' }"
               clearable
               style="width: 100%"
           ></el-cascader>
@@ -158,32 +164,32 @@ const getUserList = async () => {
 
 // 用户弹窗关闭
 const handleClose = () => {
-  showModal.value = false
-  handleReset('dialogForm')
-}
-const action = ref('add')
+  showModal.value = false;
+  handleReset('dialogForm');
+};
+const action = ref('add');
 // 用户提交
 const handleSubmit = () => {
   proxy.$refs.dialogForm.validate(async (valid) => {
     if (valid) {
       //toRaw的作用是将响应式对象转为普通对象，避免修改某些值影响数据
-      let { userEmail } = toRaw(userForm)
+      let {userEmail} = toRaw(userForm);
       let params = {
         ...userForm,
         userEmail: userEmail + '@myCompany.com',
         action: action.value
-      }
-      console.log('params fuck', params)
-      let res = await proxy.$api.userSubmit(params)
+      };
+      console.log('params fuck', params);
+      let res = await proxy.$api.userSubmit(params);
       if (res) {
-        showModal.value = false
-        proxy.$message.success('用户创建成功')
-        handleReset('dialogForm')
-        getUserList()
+        showModal.value = false;
+        proxy.$message.success('用户创建成功');
+        handleReset('dialogForm');
+        getUserList();
       }
     }
-  })
-}
+  });
+};
 
 // 查询事件，获取用户列表
 const handleQuery = () => {
@@ -235,7 +241,6 @@ const handleCurrentChange = (current) => {
   pager.pageNum = current;
   getUserList();
 };
-
 // 新增用户
 const userForm = reactive({
   state: 3
@@ -243,7 +248,21 @@ const userForm = reactive({
 // 弹框显示
 const showModal = ref(false);
 const handleCreate = () => {
+  action.value = 'add';
   showModal.value = true;
+};
+// 用户编辑
+const handleEdit = (row) => {
+  action.value = 'edit';
+  showModal.value = true;
+  // 不能直接写,reset会有问题,会觉得初始状态就有值
+  // Object.assign(userForm, row);
+  // 等待dom渲染完成再执行，初始状态是空
+  proxy.$nextTick(() => {
+    // 把row的数据浅拷贝给userForm
+    Object.assign(userForm, row);
+    console.log('userForm', userForm);
+  });
 };
 // 定义表单校验规则
 const rules = reactive({
