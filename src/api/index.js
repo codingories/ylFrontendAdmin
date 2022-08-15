@@ -43,5 +43,29 @@ export default {
       data: params,
       mock: true
     })
-  }
+  },
+  getDeptList() {
+    return request({
+      url: '/dept/list',
+      method: 'get',
+      data: {},
+      mock: true
+    })
+  },
+  getRoleList(params) {
+    return request({
+      url: '/roles/list',
+      method: 'get',
+      data: params,
+      mock: true
+    })
+  },
+  userSubmit(params) {
+    return request({
+      url: '/user/operate',
+      method: 'post',
+      data: params,
+      mock: true
+    })
+  },
 }

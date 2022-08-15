@@ -19,7 +19,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button @click="handleReset('form')">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -86,22 +86,31 @@
           </el-select>
         </el-form-item>
         <el-form-item label="系统角色 " prop="roleList">
-          <el-select v-model="userForm.roleList" placeholder="请输入用户系统角色">
-            <el-option></el-option>
+          <el-select v-model="userForm.roleList" placeholder="请输入用户系统角色" multiple style="width: 100%">
+            <el-option
+                v-for="role in roleList"
+                :key="role._id"
+                :label="role.roleName"
+                :value="role._id"
+            ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="部门 " prop="deptId">
-          <el-cascader v-model="userForm.deptId"
-                       placeholder="请选择所属部门"
-                       :options="[]" :props="{ checkStrictly: true, value:'_id', label: 'deptName' }" clearable/>
+        <el-form-item label="部门" prop="deptId">
+          <!-- value: '_id', label: 'deptName'  可以指定空间用的value 和label 对应接口的哪个字段 -->
+          <el-cascader
+              v-model="userForm.deptId"
+              placeholder="请选择所属部门"
+              :options="deptList"
+              :props="{ checkStrictly: true, value: '_id', label: 'deptName' }"
+              clearable
+              style="width: 100%"
+          ></el-cascader>
         </el-form-item>
       </el-form>
       <template #footer>
       <span class="dialog-footer">
-        <el-button>Cancel</el-button>
-        <el-button type="primary"
-        >Confirm</el-button
-        >
+          <el-button @click="handleClose">取 消</el-button>
+          <el-button type="primary" @click="handleSubmit">确 定</el-button>
       </span>
       </template>
     </el-dialog>
@@ -109,7 +118,7 @@
 </template>
 
 <script lang="ts" setup>
-import {getCurrentInstance, onMounted, reactive, ref} from 'vue';
+import {getCurrentInstance, onMounted, reactive, ref, toRaw} from 'vue';
 import api from '../api/index.js';
 
 const {proxy, ctx} = getCurrentInstance(); // ctx调用全局会有问题, 通过proxy来调用全局方法属性
@@ -132,6 +141,8 @@ const userList = ref([]);
 // 初始化接口调用
 onMounted(() => {
   getUserList();
+  getDeptList();
+  getRoleList();
 });
 // 获取用户表格数据
 const getUserList = async () => {
@@ -144,6 +155,35 @@ const getUserList = async () => {
     console.log(e);
   }
 };
+
+// 用户弹窗关闭
+const handleClose = () => {
+  showModal.value = false
+  handleReset('dialogForm')
+}
+const action = ref('add')
+// 用户提交
+const handleSubmit = () => {
+  proxy.$refs.dialogForm.validate(async (valid) => {
+    if (valid) {
+      //toRaw的作用是将响应式对象转为普通对象，避免修改某些值影响数据
+      let { userEmail } = toRaw(userForm)
+      let params = {
+        ...userForm,
+        userEmail: userEmail + '@myCompany.com',
+        action: action.value
+      }
+      console.log('params fuck', params)
+      let res = await proxy.$api.userSubmit(params)
+      if (res) {
+        showModal.value = false
+        proxy.$message.success('用户创建成功')
+        handleReset('dialogForm')
+        getUserList()
+      }
+    }
+  })
+}
 
 // 查询事件，获取用户列表
 const handleQuery = () => {
@@ -186,10 +226,8 @@ const handlePatchDel = async (row) => {
 
 
 // 重置查询表单
-const handleReset = () => {
-  console.log('111');
-  proxy.$refs.form.resetFields();
-  // ctx.$refs.form.resetFields()
+const handleReset = (form) => {
+  proxy.$refs[form].resetFields();
 };
 
 // 分页事件处理
@@ -230,6 +268,24 @@ const rules = reactive({
     }
   ]
 });
+
+// 所有的部门列表
+const deptList = ref([]);
+// 所有的角色列表
+const roleList = ref([]);
+// 获取所有的部门
+const getDeptList = async () => {
+  let list = await proxy.$api.getDeptList();
+  deptList.value = list;
+};
+
+// 角色列表查询
+const getRoleList = async () => {
+  let list = await proxy.$api.getRoleList();
+  roleList.value = list;
+};
+
+
 // 定义动态表格头
 const columns = reactive([
   {
