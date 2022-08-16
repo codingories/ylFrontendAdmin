@@ -126,7 +126,7 @@
 <script lang="ts" setup>
 import {getCurrentInstance, onMounted, reactive, ref, toRaw} from 'vue';
 import api from '../api/index.js';
-
+import utils from '../utils/utils.js'
 const {proxy, ctx} = getCurrentInstance(); // ctx调用全局会有问题, 通过proxy来调用全局方法属性
 
 // 初始化用户表单对象
@@ -339,10 +339,12 @@ const columns = reactive([
     label: '用户名', prop: 'userName',
   },
   {
-    label: '注册时间', prop: 'createTime'
+    label: '注册时间', prop: 'createTime', width: 180, formatter(row, column, value) {
+      return utils.formatDate(new Date(value))
+    }
   },
   {
-    label: '最后登录时间', prop: 'lastLoginTime',
+    label: '最后登录时间', prop: 'lastLoginTime', width: 180
   },
 ]);
 </script>
