@@ -62,9 +62,10 @@ function request(options) {
   if (options.method.toLowerCase() === 'get') {
     options.params = options.data
   }
+  let isMock = config.mock
   // 局部控制mock
   if(typeof options.mock !== 'undefined') {
-    config.mock = options.mock
+    isMock = options.mock
   }
   // 这样写是为了确保线上环境api不会出错
   if (config.env === 'prod') {

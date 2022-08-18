@@ -42,7 +42,6 @@ export default {
       url: '/users/delete',
       method: 'post',
       data: params,
-      mock: true
     })
   },
   getDeptList() {
