@@ -134,7 +134,7 @@ const {proxy, ctx} = getCurrentInstance(); // ctx调用全局会有问题, 通�
 const user = reactive({
   userId: '',
   userName: '',
-  state: 0
+  state: 1
 });
 // 初始化分页
 const pager = reactive({
@@ -182,12 +182,13 @@ const handleSubmit = () => {
       };
       let res = await proxy.$api.userSubmit(params);
       console.log('fuck res=>', res)
-      if (res) {
-        showModal.value = false;
-        proxy.$message.success('用户创建成功');
-        handleReset('dialogForm');
-        getUserList();
-      }
+      // if (res) {
+      //
+      // }
+      showModal.value = false;
+      proxy.$message.success('用户创建成功');
+      handleReset('dialogForm');
+      getUserList();
     }
   });
 };
@@ -333,7 +334,7 @@ const columns = reactive([
       return {
         1: '在职',
         2: '离职',
-        3: '所有'
+        3: '试用期'
       }[value];
     }
   },
