@@ -63,7 +63,6 @@
 
     </div>
     <el-dialog v-model="showModal" title="用户新增">
-      {{showModal}}
       <el-form ref="dialogForm" :model="userForm" :label-width="100" :rules="rules">
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="userForm.userName" placeholder="请输入用户名称"
@@ -127,7 +126,8 @@
 <script lang="ts" setup>
 import {getCurrentInstance, onMounted, reactive, ref, toRaw} from 'vue';
 import api from '../api/index.js';
-import utils from '../utils/utils.js'
+import utils from '../utils/utils.js';
+
 const {proxy, ctx} = getCurrentInstance(); // ctx调用全局会有问题, 通过proxy来调用全局方法属性
 
 // 初始化用户表单对象
@@ -181,7 +181,7 @@ const handleSubmit = () => {
         action: action.value
       };
       let res = await proxy.$api.userSubmit(params);
-      console.log('fuck res=>', res)
+      console.log('fuck res=>', res);
       // if (res) {
       //
       // }
@@ -276,7 +276,7 @@ const rules = reactive({
   ],
   mobile: [
     {
-    // /^1[3|4|5|7|8|9]\d{9}$/
+      // /^1[3|4|5|7|8|9]\d{9}$/
       pattern: /^1\d{10}$/,
       message: '请输入正确的手机号格式',
       trigger: 'blur'
@@ -343,11 +343,14 @@ const columns = reactive([
   },
   {
     label: '注册时间', prop: 'createTime', width: 180, formatter(row, column, value) {
-      return utils.formatDate(new Date(value))
+      return utils.formatDate(new Date(value));
     }
   },
   {
-    label: '最后登录时间', prop: 'lastLoginTime', width: 180
+    label: '最后登录时间', prop: 'lastLoginTime', width: 180,
+    formatter(row, column, value) {
+      return utils.formatDate(new Date(value));
+    }
   },
 ]);
 </script>
