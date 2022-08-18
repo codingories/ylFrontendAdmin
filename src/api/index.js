@@ -62,10 +62,10 @@ export default {
   },
   userSubmit(params) {
     return request({
-      url: '/user/operate',
+      url: '/users/operate',
       method: 'post',
       data: params,
-      mock: true
+      mock: false
     })
   },
 }

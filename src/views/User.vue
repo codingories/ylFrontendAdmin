@@ -63,6 +63,7 @@
 
     </div>
     <el-dialog v-model="showModal" title="用户新增">
+      {{showModal}}
       <el-form ref="dialogForm" :model="userForm" :label-width="100" :rules="rules">
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="userForm.userName" placeholder="请输入用户名称"
@@ -179,8 +180,8 @@ const handleSubmit = () => {
         userEmail: userEmail + '@myCompany.com',
         action: action.value
       };
-      console.log('params fuck', params);
       let res = await proxy.$api.userSubmit(params);
+      console.log('fuck res=>', res)
       if (res) {
         showModal.value = false;
         proxy.$message.success('用户创建成功');
@@ -274,7 +275,8 @@ const rules = reactive({
   ],
   mobile: [
     {
-      pattern: /1\d{10}/,
+    // /^1[3|4|5|7|8|9]\d{9}$/
+      pattern: /^1\d{10}$/,
       message: '请输入正确的手机号格式',
       trigger: 'blur'
     }

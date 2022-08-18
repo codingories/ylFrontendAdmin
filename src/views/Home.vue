@@ -127,7 +127,7 @@ export default {
   position: relative;
 
   .nav-side {
-    border: 1px solid blue;
+    //border: 1px solid blue;
     position: fixed;
     width: 200px;
     height: 100vh;
