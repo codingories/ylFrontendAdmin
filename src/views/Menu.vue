@@ -54,7 +54,7 @@
           <el-cascader
               v-model="menuForm.parentId"
               :options="menuList"
-              :props="{ checkStrictly: true }"
+              :props="{ checkStrictly: true, value: '_id', label: 'menuName' }"
               clearable
           >
 
@@ -115,6 +115,21 @@ export default {
       },
       action: '',
       menuList: [],
+      rules: {
+        menuName: [
+          {
+            required: true,
+            message: '请输入菜单名称',
+            trigger: 'blur',
+          },
+          {
+            min: 2,
+            max: 8,
+            message: '长度在2-8个字符',
+            trigger: 'blur',
+          }
+        ]
+      },
       columns: [
         {
           label: '菜单名称',
@@ -186,9 +201,14 @@ export default {
     },
     handleQuery() {
     },
-    handleReset() {
+    handleClose() {
+      this.showModal = false;
+      this.handleReset('dialogForm');
     },
-    handleAdd() {
+    handleReset(form) {
+      this.$refs[form].resetFields()
+    },
+    handleAdd(type, row) {
       this.showModal = true
       this.action = "add"
       if (type === 2) {
@@ -199,6 +219,19 @@ export default {
     },
     handleDelete() {
     },
+    handleSubmit() {
+      this.$refs.dialogForm.validate(async (valid) => {
+        if (valid) {
+          let {action, menuForm} = this
+          let params = {...menuForm, action}
+          let res = await this.$api.menuSubmit(params)
+          this.showModal = false
+          this.$message.success('操作成功')
+          this.handleReset('dialogForm')
+          this.getMenuList()
+        }
+      })
+    }
   }
 }
 </script>
