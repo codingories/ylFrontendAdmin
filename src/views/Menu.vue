@@ -42,13 +42,14 @@
             width="220">
           <template #default="scope">
             <el-button type="primary" @click="handleAdd(2, scope.row)">新增</el-button>
-            <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button @click="handleEdit(scope.row)">编辑</el-button>
             <el-button type="danger" size="small" @click="handleDel(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <el-dialog v-model="showModal" title="用户新增">
+<!--      {{menuForm}}-->
       <el-form ref="dialogForm" :model="menuForm" :label-width="100" :rules="rules">
         <el-form-item label="父级菜单" prop="parentId">
           <el-cascader
@@ -84,10 +85,10 @@
         <el-form-item label="组件路径" prop="component">
           <el-input v-model="menuForm.component" placeholder="请输入组件路径"/>
         </el-form-item>
-        <el-form-item label="菜单状态" prop="status">
-          <el-radio-group v-model="menuForm.status">
-            <el-radio label="1">正常</el-radio>
-            <el-radio label="2">停用</el-radio>
+        <el-form-item label="菜单状态" prop="menuState">
+          <el-radio-group v-model="menuForm.menuState">
+            <el-radio :label="1">正常</el-radio>
+            <el-radio :label="2">停用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -109,7 +110,7 @@ export default {
   data() {
     return {
       menuForm: {},
-      showModal: true,
+      showModal: false,
       queryForm: {
         menuState: 1
       },
@@ -215,9 +216,17 @@ export default {
         this.menuForm.parentId = [...row.parentId, row._id].filter((item) => item)
       }
     },
-    handleEdit() {
+    handleEdit(row) {
+      this.showModal = true
+      this.action = 'edit'
+      this.$nextTick(() => {
+        Object.assign(this.menuForm, row)
+      })
     },
-    handleDelete() {
+    async handleDel(_id) {
+      await this.$api.menuSubmit({ _id, action: 'delete' })
+      this.$message.success('删除成功')
+      this.getMenuList()
     },
     handleSubmit() {
       this.$refs.dialogForm.validate(async (valid) => {
