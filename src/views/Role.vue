@@ -14,7 +14,7 @@
     </div>
     <div class="base-table">
       <div class="action">
-        <el-button type="primary" @click="handleAdd(1)">创建</el-button>
+        <el-button type="primary" @click="handleAdd">创建</el-button>
       </div>
       <el-table
           :data="roleList"
@@ -32,9 +32,9 @@
             label="操作"
             width="220">
           <template #default="scope">
-            <el-button type="primary">编辑</el-button>
+            <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button>设置权限</el-button>
-            <el-button type="danger" size="small" @click="handleDel(scope.row)">删除</el-button>
+            <el-button type="danger" size="small" @click="handleDel(scope.row._id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -49,56 +49,22 @@
     </div>
 
 
-    <!--    <el-dialog v-model="showModal" title="用户新增">-->
-    <!--      <el-form ref="dialogForm" :model="menuForm" :label-width="100" :rules="rules">-->
-    <!--        <el-form-item label="父级菜单" prop="parentId">-->
-    <!--          <el-cascader-->
-    <!--              v-model="menuForm.parentId"-->
-    <!--              :options="menuList"-->
-    <!--              :props="{ checkStrictly: true, value: '_id', label: 'menuName' }"-->
-    <!--              clearable-->
-    <!--          >-->
-
-    <!--          </el-cascader>-->
-    <!--          <span>-->
-    <!--            不选，则直接创建一级菜单-->
-    <!--          </span>-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="菜单类型" prop="menuType">-->
-    <!--          <el-radio-group v-model="menuForm.menuType">-->
-    <!--            <el-radio :label="1">菜单</el-radio>-->
-    <!--            <el-radio :label="2">按钮</el-radio>-->
-    <!--          </el-radio-group>-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="菜单名称" prop="menuName">-->
-    <!--          <el-input v-model="menuForm.menuName" placeholder="请输入菜单名称"/>-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="菜单图标" prop="icon" v-show="menuForm.menuType === 1">-->
-    <!--          <el-input v-model="menuForm.icon" placeholder="请输入图标"/>-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="路由地址" prop="path" v-show="menuForm.menuType === 1">-->
-    <!--          <el-input v-model="menuForm.path" placeholder="请输入路由地址"/>-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="权限标识" prop="menuCode" v-show="menuForm.menuType === 2">-->
-    <!--          <el-input v-model="menuForm.menuCode" placeholder="请输入权限标识"/>-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="组件路径" prop="component" v-show="menuForm.menuType === 1">-->
-    <!--          <el-input v-model="menuForm.component" placeholder="请输入组件路径"/>-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="菜单状态" prop="menuState" v-show="menuForm.menuType === 1">-->
-    <!--          <el-radio-group v-model="menuForm.menuState">-->
-    <!--            <el-radio :label="1">正常</el-radio>-->
-    <!--            <el-radio :label="2">停用</el-radio>-->
-    <!--          </el-radio-group>-->
-    <!--        </el-form-item>-->
-    <!--      </el-form>-->
-    <!--      <template #footer>-->
-    <!--      <span class="dialog-footer">-->
-    <!--          <el-button @click="handleClose">取 消</el-button>-->
-    <!--          <el-button type="primary" @click="handleSubmit">确 定</el-button>-->
-    <!--      </span>-->
-    <!--      </template>-->
-    <!--    </el-dialog>-->
+    <el-dialog v-model="showModal" title="用户新增">
+      <el-form ref="dialogForm" :model="roleForm" :rules="rules" label-width="100px">
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="roleForm.roleName" placeholder="请输入角色名称"/>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input type="textarea" :rows="2" v-model="roleForm.remark" placeholder="请输入备注"/>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+          <span class="dialog-footer">
+              <el-button @click="handleClose">取 消</el-button>
+              <el-button type="primary" @click="handleSubmit">确 定</el-button>
+          </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -115,9 +81,22 @@ export default {
         total: 100
       },
       queryForm: {
-        roleName: 1
+        roleName: ""
       },
+      roleForm: {
+        roleName: ''
+      },
+      showModal: false,
       roleList: [],
+      rules: {
+        roleName: [
+          {
+            required: true,
+            message: '请输入角色的名称'
+          }
+        ]
+      },
+      action: '',
       columns: [
         {
           label: '角色名称',
@@ -147,6 +126,17 @@ export default {
     this.getRoleList()
   },
   methods: {
+    handleAdd() {
+      this.action = 'create'
+      this.showModal = true
+    },
+    handleEdit(row) {
+      this.action = 'edit'
+      this.showModal = true
+      this.$nextTick(() => {
+        this.roleForm = row
+      })
+    },
     async getRoleList() {
       try {
         let {list, page} = await this.$api.getRoleList(this.queryForm)
@@ -161,16 +151,34 @@ export default {
       this.getMenuList()
     },
     handleReset(form) {
-      console.log(form)
-      console.log(this.$refs)
-      console.log(this.$refs[form])
       this.$refs[form].resetFields()
     },
-
+    handleCurrentChange() {
+    },
     async handleDel(_id) {
-      await this.$api.menuSubmit({_id, action: 'delete'})
+      await this.$api.roleOperate({_id, action: 'delete'})
       this.$message.success('删除成功')
-      this.getMenuList()
+      this.getRoleList()
+    },
+    // 角色提交
+    handleSubmit() {
+      this.$refs.dialogForm.validate(async (valid) => {
+        if (valid) {
+          let {roleForm, action} = this
+          let params = {...roleForm, action}
+          let res = await this.$api.roleOperate(params)
+          if (res) {
+            this.showModal = false
+            this.$message.success('创建成功')
+            this.handleReset('dialogForm')
+            this.getRoleList()
+          }
+        }
+      })
+    },
+    handleClose() {
+      this.showModal = false;
+      this.handleReset('dialogForm');
     },
 
   }
