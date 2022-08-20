@@ -15,7 +15,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="handleReset('form')">重置</el-button>
+          <el-button @click="handleReset('queryForm')">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -49,7 +49,7 @@
       </el-table>
     </div>
     <el-dialog v-model="showModal" title="用户新增">
-<!--      {{menuForm}}-->
+<!--            {{menuForm}}-->
       <el-form ref="dialogForm" :model="menuForm" :label-width="100" :rules="rules">
         <el-form-item label="父级菜单" prop="parentId">
           <el-cascader
@@ -66,8 +66,8 @@
         </el-form-item>
         <el-form-item label="菜单类型" prop="menuType">
           <el-radio-group v-model="menuForm.menuType">
-            <el-radio label="1">菜单</el-radio>
-            <el-radio label="2">按钮</el-radio>
+            <el-radio :label="1">菜单</el-radio>
+            <el-radio :label="2">按钮</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="菜单名称" prop="menuName">
@@ -109,7 +109,11 @@ export default {
   name: 'menu',
   data() {
     return {
-      menuForm: {},
+      menuForm: {
+        parentId: [null],
+        menuType: 1,
+        menuState: 1
+      },
       showModal: false,
       queryForm: {
         menuState: 1
@@ -201,12 +205,16 @@ export default {
       }
     },
     handleQuery() {
+      this.getMenuList()
     },
     handleClose() {
       this.showModal = false;
       this.handleReset('dialogForm');
     },
     handleReset(form) {
+      console.log(form)
+      console.log(this.$refs)
+      console.log(this.$refs[form])
       this.$refs[form].resetFields()
     },
     handleAdd(type, row) {
@@ -224,7 +232,7 @@ export default {
       })
     },
     async handleDel(_id) {
-      await this.$api.menuSubmit({ _id, action: 'delete' })
+      await this.$api.menuSubmit({_id, action: 'delete'})
       this.$message.success('删除成功')
       this.getMenuList()
     },
