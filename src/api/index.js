@@ -60,6 +60,14 @@ export default {
       mock: true
     })
   },
+  getRoleAllList(params) {
+    return request({
+      url: '/roles/allList',
+      method: 'get',
+      data: params,
+      mock: true
+    })
+  },
   userSubmit(params) {
     return request({
       url: '/users/operate',

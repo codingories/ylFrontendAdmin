@@ -149,7 +149,7 @@ const userList = ref([]);
 onMounted(() => {
   getUserList();
   getDeptList();
-  getRoleList();
+  getRoleAllList();
 });
 // 获取用户表格数据
 const getUserList = async () => {
@@ -302,8 +302,8 @@ const getDeptList = async () => {
 };
 
 // 角色列表查询
-const getRoleList = async () => {
-  let list = await proxy.$api.getRoleList();
+const getRoleAllList = async () => {
+  let list = await proxy.$api.getRoleAllList();
   roleList.value = list;
 };
 

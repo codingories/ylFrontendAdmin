@@ -73,19 +73,19 @@
         <el-form-item label="菜单名称" prop="menuName">
           <el-input v-model="menuForm.menuName" placeholder="请输入菜单名称"/>
         </el-form-item>
-        <el-form-item label="菜单图标" prop="icon">
+        <el-form-item label="菜单图标" prop="icon" v-show="menuForm.menuType === 1">
           <el-input v-model="menuForm.icon" placeholder="请输入图标"/>
         </el-form-item>
-        <el-form-item label="路由地址" prop="path">
+        <el-form-item label="路由地址" prop="path" v-show="menuForm.menuType === 1">
           <el-input v-model="menuForm.path" placeholder="请输入路由地址"/>
         </el-form-item>
-        <el-form-item label="权限标识" prop="menuCode">
+        <el-form-item label="权限标识" prop="menuCode" v-show="menuForm.menuType === 2">
           <el-input v-model="menuForm.menuCode" placeholder="请输入权限标识"/>
         </el-form-item>
-        <el-form-item label="组件路径" prop="component">
+        <el-form-item label="组件路径" prop="component" v-show="menuForm.menuType === 1">
           <el-input v-model="menuForm.component" placeholder="请输入组件路径"/>
         </el-form-item>
-        <el-form-item label="菜单状态" prop="menuState">
+        <el-form-item label="菜单状态" prop="menuState" v-show="menuForm.menuType === 1">
           <el-radio-group v-model="menuForm.menuState">
             <el-radio :label="1">正常</el-radio>
             <el-radio :label="2">停用</el-radio>
