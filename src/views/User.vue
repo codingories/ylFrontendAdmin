@@ -126,14 +126,15 @@
 <script lang="ts" setup>
 import {getCurrentInstance, onMounted, reactive, ref, toRaw} from 'vue';
 import api from '../api/index.js';
-import utils from '../utils/utils.js'
+import utils from '../utils/utils.js';
+
 const {proxy, ctx} = getCurrentInstance(); // ctx调用全局会有问题, 通过proxy来调用全局方法属性
 
 // 初始化用户表单对象
 const user = reactive({
   userId: '',
   userName: '',
-  state: 0
+  state: 1
 });
 // 初始化分页
 const pager = reactive({
@@ -179,14 +180,15 @@ const handleSubmit = () => {
         userEmail: userEmail + '@myCompany.com',
         action: action.value
       };
-      console.log('params fuck', params);
       let res = await proxy.$api.userSubmit(params);
-      if (res) {
-        showModal.value = false;
-        proxy.$message.success('用户创建成功');
-        handleReset('dialogForm');
-        getUserList();
-      }
+      console.log('fuck res=>', res);
+      // if (res) {
+      //
+      // }
+      showModal.value = false;
+      proxy.$message.success('用户创建成功');
+      handleReset('dialogForm');
+      getUserList();
     }
   });
 };
@@ -274,7 +276,8 @@ const rules = reactive({
   ],
   mobile: [
     {
-      pattern: /1\d{10}/,
+      // /^1[3|4|5|7|8|9]\d{9}$/
+      pattern: /^1\d{10}$/,
       message: '请输入正确的手机号格式',
       trigger: 'blur'
     }
@@ -331,7 +334,7 @@ const columns = reactive([
       return {
         1: '在职',
         2: '离职',
-        3: '所有'
+        3: '试用期'
       }[value];
     }
   },
@@ -340,11 +343,14 @@ const columns = reactive([
   },
   {
     label: '注册时间', prop: 'createTime', width: 180, formatter(row, column, value) {
-      return utils.formatDate(new Date(value))
+      return utils.formatDate(new Date(value));
     }
   },
   {
-    label: '最后登录时间', prop: 'lastLoginTime', width: 180
+    label: '最后登录时间', prop: 'lastLoginTime', width: 180,
+    formatter(row, column, value) {
+      return utils.formatDate(new Date(value));
+    }
   },
 ]);
 </script>
