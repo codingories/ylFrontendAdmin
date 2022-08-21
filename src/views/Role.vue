@@ -107,6 +107,7 @@ export default {
       },
       curRoleId: "",
       action: '',
+      actionMap: {},
       columns: [
         {
           label: '角色名称',
@@ -119,7 +120,17 @@ export default {
         },
         {
           label: '权限列表',
-          prop: 'menuType',
+          prop: 'permissionList',
+          formatter: (row, column, value) => {
+            let names = []
+            let list = value.halfCheckedKeys || []
+            console.log('list=>', list)
+            console.log('this.actionMap=>', this.actionMap)
+            list.map(key => {
+              if (key) names.push(this.actionMap[key])
+            })
+            return names.join(',')
+          }
         },
         {
           label: '创建时间',
@@ -129,7 +140,9 @@ export default {
             return utils.formatDate(new Date(value));
           }
         },
-      ]
+      ],
+      // 菜单映射表
+
     }
   },
   mounted() {
@@ -141,14 +154,33 @@ export default {
       this.action = 'create'
       this.showModal = true
     },
+    // 获取列表初始化
     async getMenuList() {
       try {
         let list = await this.$api.getMenuList()
         this.menuList = list
+        this.getActionMap(list)
       } catch (e) {
         console.error(e)
         throw new Error(e)
       }
+    },
+    getActionMap(list) {
+      let actionMap = {}
+      const deep = (arr) => {
+        while (arr.length) {
+          let item = arr.pop()
+          if (item.children && item.action) {
+            actionMap[item._id] = item.menuName
+          }
+          if (item.children && !item.action) {
+            deep(item.children)
+          }
+        }
+      }
+      deep(JSON.parse(JSON.stringify(list)))
+      console.log('222 actionMap', actionMap)
+      this.actionMap = actionMap
     },
     handleOpenPermission(row) {
       this.curRolName = row.roleName
@@ -223,7 +255,7 @@ export default {
         }
       })
       let params = {
-        _id : this.curRoleId,
+        _id: this.curRoleId,
         permissionList: {
           checkedKeys,
           halfCheckedKeys: parentKeys.concat(halfKeys)
