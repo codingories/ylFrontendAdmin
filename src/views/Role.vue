@@ -33,7 +33,7 @@
             width="220">
           <template #default="scope">
             <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button>设置权限</el-button>
+            <el-button type="primary" @click="handleOpenPermission(scope.row)">设置权限</el-button>
             <el-button type="danger" size="small" @click="handleDel(scope.row._id)">删除</el-button>
           </template>
         </el-table-column>
@@ -48,19 +48,26 @@
       />
     </div>
 
-
-    <el-dialog v-model="showModal" title="用户新增">
-      <el-form ref="dialogForm" :model="roleForm" :rules="rules" label-width="100px">
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="roleForm.roleName" placeholder="请输入角色名称"/>
+    <!--权限弹框-->
+    <el-dialog v-model="showPermission" title="用户新增">
+      <el-form ref="dialogForm" label-width="100px">
+        <el-form-item label="角色名称">
+          {{ curRoleName }}
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input type="textarea" :rows="2" v-model="roleForm.remark" placeholder="请输入备注"/>
+        <el-form-item label="选择权限">
+          <el-tree :data="menuList"
+                   ref="permissionTree"
+                   default-expand-all
+                   show-checkbox
+                   node-key="_id"
+                   :props="{label: 'menuName'}"
+          />
+
         </el-form-item>
       </el-form>
       <template #footer>
           <span class="dialog-footer">
-              <el-button @click="handleClose">取 消</el-button>
+              <el-button @click="handlePermissionClose">取 消</el-button>
               <el-button type="primary" @click="handleSubmit">确 定</el-button>
           </span>
       </template>
@@ -80,6 +87,8 @@ export default {
         pageSize: 10,
         total: 100
       },
+      curRoleName: '',
+      showPermission: false,
       queryForm: {
         roleName: ""
       },
@@ -96,6 +105,7 @@ export default {
           }
         ]
       },
+      curRoleId: "",
       action: '',
       columns: [
         {
@@ -124,11 +134,28 @@ export default {
   },
   mounted() {
     this.getRoleList()
+    this.getMenuList();
   },
   methods: {
     handleAdd() {
       this.action = 'create'
       this.showModal = true
+    },
+    async getMenuList() {
+      try {
+        let list = await this.$api.getMenuList()
+        this.menuList = list
+      } catch (e) {
+        console.error(e)
+        throw new Error(e)
+      }
+    },
+    handleOpenPermission(row) {
+      this.curRolName = row.roleName
+      this.curRoleId = row._id
+      this.showPermission = true
+      let {checkedKeys} = row.permissionList
+
     },
     handleEdit(row) {
       this.action = 'edit'
@@ -136,6 +163,10 @@ export default {
       this.$nextTick(() => {
         this.roleForm = row
       })
+    },
+    handlePermissionClose() {
+      this.showPermission = false;
+      this.handleReset('dialogForm');
     },
     async getRoleList() {
       try {

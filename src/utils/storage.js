@@ -14,7 +14,11 @@ export default {
     window.localStorage.setItem(config.nameSpace, JSON.stringify(storage))
   },
   getItem(key) {
-    return this.getStorage()[key]
+    if(this.getStorage().hasOwnProperty(key)) {
+      return this.getStorage()[key]
+    } else {
+      return {}
+    }
   },
   getStorage() {
     // 注意点给个保底值，如果一开始没有命名空间
