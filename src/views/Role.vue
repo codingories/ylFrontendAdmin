@@ -56,7 +56,7 @@
         </el-form-item>
         <el-form-item label="选择权限">
           <el-tree :data="menuList"
-                   ref="permissionTree"
+                   ref="tree"
                    default-expand-all
                    show-checkbox
                    node-key="_id"
@@ -68,7 +68,7 @@
       <template #footer>
           <span class="dialog-footer">
               <el-button @click="handlePermissionClose">取 消</el-button>
-              <el-button type="primary" @click="handleSubmit">确 定</el-button>
+              <el-button type="primary" @click="handlePermissionSubmit">确 定</el-button>
           </span>
       </template>
     </el-dialog>
@@ -155,7 +155,10 @@ export default {
       this.curRoleId = row._id
       this.showPermission = true
       let {checkedKeys} = row.permissionList
-
+      console.log('checkedKeys => ', checkedKeys)
+      setTimeout(() => {
+        this.$refs.tree.setCheckedKeys(checkedKeys);
+      })
     },
     handleEdit(row) {
       this.action = 'edit'
@@ -206,6 +209,30 @@ export default {
           }
         }
       })
+    },
+    async handlePermissionSubmit() {
+      let nodes = this.$refs.tree.getCheckedNodes();
+      let halfKeys = this.$refs.tree.getHalfCheckedKeys();
+      let checkedKeys = []
+      let parentKeys = []
+      nodes.map(node => {
+        if (!node.children) {
+          checkedKeys.push(node._id);
+        } else {
+          parentKeys.push(node._id)
+        }
+      })
+      let params = {
+        _id : this.curRoleId,
+        permissionList: {
+          checkedKeys,
+          halfCheckedKeys: parentKeys.concat(halfKeys)
+        }
+      }
+      await this.$api.updatePermission(params)
+      this.showPermission = false
+      this.$message.success('设置成功')
+      this.getRoleList();
     },
     handleClose() {
       this.showModal = false;
