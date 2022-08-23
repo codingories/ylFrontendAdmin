@@ -1,6 +1,7 @@
 <template>
   <div class="role-manage">
     <!--    <h3>用户管理</h3>-->
+    {{actionMap}}
     <div class="query-form">
       <el-form :inline="true" :model="queryForm" ref="queryForm">
         <el-form-item label="角色名称" prop="roleName">
@@ -124,8 +125,6 @@ export default {
           formatter: (row, column, value) => {
             let names = []
             let list = value.halfCheckedKeys || []
-            console.log('list=>', list)
-            console.log('this.actionMap=>', this.actionMap)
             list.map(key => {
               if (key) names.push(this.actionMap[key])
             })
@@ -179,7 +178,6 @@ export default {
         }
       }
       deep(JSON.parse(JSON.stringify(list)))
-      console.log('222 actionMap', actionMap)
       this.actionMap = actionMap
     },
     handleOpenPermission(row) {
@@ -205,7 +203,7 @@ export default {
     },
     async getRoleList() {
       try {
-        let {list, page} = await this.$api.getRoleList(this.queryForm)
+        let {list, page} = await this.$api.getRoleList({...this.queryForm, ...this.pager})
         this.roleList = list
         this.pager.total = page.total
       } catch (e) {

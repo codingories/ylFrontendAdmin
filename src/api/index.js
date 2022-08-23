@@ -57,7 +57,7 @@ export default {
       url: '/roles/list',
       method: 'get',
       data: params,
-      mock: true
+      mock: false
     })
   },
   getRoleAllList(params) {
@@ -65,7 +65,7 @@ export default {
       url: '/roles/allList',
       method: 'get',
       data: params,
-      mock: true
+      mock: false
     })
   },
   userSubmit(params) {

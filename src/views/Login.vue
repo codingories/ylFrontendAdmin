@@ -26,8 +26,8 @@ import api from '../api'
 import {useRouter} from "vue-router"
 import {useStore} from "vuex"
 const user = reactive({
-  userName: "",
-  userPwd: ""
+  userName: "admin",
+  userPwd: "123456"
 })
 const userFormRef = ref()
 const router = useRouter()
