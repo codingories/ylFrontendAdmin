@@ -151,7 +151,8 @@ export default {
             let names = []
             let list = value.halfCheckedKeys || []
             list.map(key => {
-              if (key) names.push(this.actionMap[key])
+              let name = this.actionMap[key]
+              if(key && name) names.push(this.actionMap[key])
             })
             return names.join(',')
           }

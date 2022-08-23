@@ -94,10 +94,10 @@ export default {
   },
   updatePermission(params) {
     return request({
-      url: '/role/update/permission',
+      url: '/roles/update/permission',
       method: 'post',
       data: params,
-      mock: true
+      mock: false
     })
   },
 }
