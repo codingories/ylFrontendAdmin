@@ -1,7 +1,7 @@
 <template>
   <div class="role-manage">
     <!--    <h3>用户管理</h3>-->
-    {{actionMap}}
+    <!--    {{actionMap}}-->
     <div class="query-form">
       <el-form :inline="true" :model="queryForm" ref="queryForm">
         <el-form-item label="角色名称" prop="roleName">
@@ -33,7 +33,7 @@
             label="操作"
             width="220">
           <template #default="scope">
-            <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button  @click="handleEdit(scope.row)">编辑</el-button>
             <el-button type="primary" @click="handleOpenPermission(scope.row)">设置权限</el-button>
             <el-button type="danger" size="small" @click="handleDel(scope.row._id)">删除</el-button>
           </template>
@@ -48,7 +48,32 @@
           @current-change="handleCurrentChange"
       />
     </div>
-
+    <el-dialog title="用户新增" v-model="showModal">
+      <el-form
+          ref="dialogForm"
+          :model="roleForm"
+          label-width="100px"
+          :rules="rules"
+      >
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="roleForm.roleName" placeholder="请输入角色名称"/>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input
+              type="textarea"
+              :rows="2"
+              v-model="roleForm.remark"
+              placeholder="请输入备注"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleClose">取 消</el-button>
+          <el-button type="primary" @click="handleSubmit">确 定</el-button>
+        </span>
+      </template>
+    </el-dialog>
     <!--权限弹框-->
     <el-dialog v-model="showPermission" title="用户新增">
       <el-form ref="dialogForm" label-width="100px">
@@ -86,7 +111,7 @@ export default {
       pager: {
         pageNum: 1,
         pageSize: 10,
-        total: 100
+        total: 0
       },
       curRoleName: '',
       showPermission: false,
@@ -194,7 +219,11 @@ export default {
       this.action = 'edit'
       this.showModal = true
       this.$nextTick(() => {
-        this.roleForm = row
+        this.roleForm = {
+          _id: row._id,
+          roleName: row.roleName,
+          remark: row.remark
+        }
       })
     },
     handlePermissionClose() {
@@ -217,7 +246,9 @@ export default {
     handleReset(form) {
       this.$refs[form].resetFields()
     },
-    handleCurrentChange() {
+    handleCurrentChange(current) {
+      this.pager.pageNum = current
+      this.getRoleList()
     },
     async handleDel(_id) {
       await this.$api.roleOperate({_id, action: 'delete'})
