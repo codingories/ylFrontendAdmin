@@ -101,7 +101,9 @@ export default {
           prop: 'createTime'
         }
       ],
-      deptForm: {},
+      deptForm: {
+        parentId: [null]
+      },
       pager: {
         pageNum: 1,
         pageSize: 10
@@ -150,16 +152,14 @@ export default {
           let params = {...this.deptForm, action: this.action}
           delete params.user
           let res = await this.$api.deptOperate(params)
-          if (res) {
-            this.$message.success('操作成功')
-            this.handleClose()
-            await this.getDeptList()
-          }
+          this.$message.success('操作成功')
+          this.handleClose()
+          await this.getDeptList()
         }
       })
     },
     async getDeptList() {
-      let list = await this.$api.getDeptList({...this.queryForm, ...this.pager})
+      let list = await this.$api.getDeptList(this.queryForm)
       this.deptList = list;
     },
     async getAllUserList() {
