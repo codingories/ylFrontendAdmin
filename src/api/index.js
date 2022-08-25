@@ -60,6 +60,14 @@ export default {
       mock: true
     })
   },
+  deptOperate(params) {
+    return request({
+      url: '/dept/operate',
+      method: 'post',
+      data: params,
+      mock: true
+    })
+  },
   getRoleList(params) {
     return request({
       url: '/roles/list',

@@ -1,6 +1,5 @@
 <template>
   <div class="dept-manage">
-<!--    {{deptList}}-->
     <div class="query-form">
       <el-form :inline="true" ref="queryForm" :model="queryForm">
         <el-form-item label="部门名称">
@@ -29,8 +28,8 @@
         </el-table-column>
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button size="small" type="primary" @click="handleEdit(scope.row)">创建</el-button>
-            <el-button size="small" type="danger" @click="handleDel(scope.row)">删除</el-button>
+            <el-button size="small" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button size="small" type="danger" @click="handleDel(scope.row._id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -51,7 +50,7 @@
           <el-input v-model="deptForm.deptName" placeholder="请输入部门名称"></el-input>
         </el-form-item>
         <el-form-item label="负责人" prop="user">
-          <el-select v-model="deptForm.user" placeholder="请选择部门负责人">
+          <el-select v-model="deptForm.user" placeholder="请选择部门负责人" @change="handleUser">
             <el-option v-for="item in userList" :key="item.userId"
                        :label="item.userName"
                        :value="`${item.userId}/${item.userName}/${item.userEmail}`"
@@ -117,7 +116,21 @@ export default {
             message: '请选择上级部门',
             trigger: 'blur'
           }
-        ]
+        ],
+        deptName: [
+          {
+            required: true,
+            message: '请输入部门名称',
+            trigger: 'blur'
+          }
+        ],
+        user: [
+          {
+            required: true,
+            message: '请选择负责人',
+            trigger: 'blur'
+          }
+        ],
       }
     }
   },
@@ -126,8 +139,25 @@ export default {
     this.getAllUserList()
   },
   methods: {
-    handleClose() {},
-    handleSubmit() {},
+    handleClose() {
+      this.showModal = false
+      this.handleReset('dialogForm')
+    },
+    handleSubmit() {
+      this.$refs.dialogForm.validate(async (valid) => {
+        console.log('valid->', valid)
+        if (valid) {
+          let params = {...this.deptForm, action: this.action}
+          delete params.user
+          let res = await this.$api.deptOperate(params)
+          if (res) {
+            this.$message.success('操作成功')
+            this.handleClose()
+            await this.getDeptList()
+          }
+        }
+      })
+    },
     async getDeptList() {
       let list = await this.$api.getDeptList({...this.queryForm, ...this.pager})
       this.deptList = list;
@@ -145,10 +175,26 @@ export default {
     handleEdit(row) {
       this.action = 'edit'
       this.showModal = true
+      this.$nextTick(() => {
+        Object.assign(this.deptForm, row, {
+          user: `${row.userId}/${row.userName}/${row.userEmail}`
+        })
+      })
     },
-    handleDel(id) {
+    async handleDel(_id) {
       this.action = 'delete'
-      this.showModal = true
+      this.$api.deptOperate({_id, action: this.action})
+      this.$message.success('删除成功')
+      await this.getDeptList()
+    },
+    handleUser(val) {
+      console.log('=>', val)
+      const [userId, userName, userEmail] = val.split('/')
+      Object.assign(this.deptForm, {
+        userId,
+        userName,
+        userEmail
+      })
     },
   }
 }
