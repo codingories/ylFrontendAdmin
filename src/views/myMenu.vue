@@ -106,7 +106,7 @@
 import utils from "../utils/utils.js"
 
 export default {
-  name: 'menu',
+  name: 'myMenu',
   data() {
     return {
       menuForm: {

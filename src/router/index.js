@@ -95,7 +95,6 @@ const router = createRouter({
 // )
 
 async function loadAsyncRoutes() {
-  console.log('fuck11111')
   let userInfo = storage.getItem("userInfo") || {}
   if (userInfo.token) {
     try {
@@ -118,7 +117,6 @@ await loadAsyncRoutes()
 
 // 判断当前地址是否可以访问
 function checkPermission(path) {
-  console.log('router.getRoutes()', router.getRoutes())
   let hasPermission = router.getRoutes().filter(route => route.path === path).length
   if (hasPermission) {
     return true
@@ -130,7 +128,6 @@ function checkPermission(path) {
 
 // 导航守卫
 router.beforeEach((to, from, next) => {
-  console.log('to', to)
   if (checkPermission(to.path)) {
     document.title = to.meta.title
     next()
