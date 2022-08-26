@@ -7,9 +7,7 @@ import config from "../config/index.js"
 
 export default {
   setItem(key, val) {
-    console.log('3333 setItem', key, val)
     let storage = this.getStorage()
-    console.log('storage', storage)
     storage[key] = val
     window.localStorage.setItem(config.nameSpace, JSON.stringify(storage))
   },

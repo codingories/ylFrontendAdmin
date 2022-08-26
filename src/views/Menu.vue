@@ -1,6 +1,6 @@
 <template>
   <div class="user-manage">
-    <!--    <h3>用户管理</h3>-->
+    <!--    <h3>菜单管理</h3>-->
     <div class="query-form">
       <el-form :inline="true" :model="queryForm" ref="queryForm">
         <el-form-item label="菜单名称" prop="menuName">

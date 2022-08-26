@@ -27,7 +27,7 @@
     </div>
     <div class="base-table">
       <div class="action">
-        <el-button type="primary" @click="handleCreate">新增</el-button>
+        <el-button type="primary" @click="handleCreate" v-has:add="'user-create'">新增</el-button>
         <el-button type="danger" @click="handlePatchDel">批量删除</el-button>
       </div>
       <el-table
@@ -183,7 +183,7 @@ const handleSubmit = () => {
       let res = await proxy.$api.userSubmit(params);
       showModal.value = false;
       let text;
-      if (this.action === 'create') {
+      if (action.value === 'create') {
         text = '创建';
       } else {
         text = '编辑';
