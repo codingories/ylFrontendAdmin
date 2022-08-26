@@ -3,6 +3,7 @@ import {createRouter, createWebHashHistory} from "vue-router"
 import storage from "../utils/storage.js"
 import API from "../api/index.js"
 import utils from "../utils/utils"
+const modules = import.meta.glob('../views/*.vue')
 
 const routes = [
   {
@@ -97,24 +98,15 @@ async function loadAsyncRoutes() {
   console.log('fuck11111')
   let userInfo = storage.getItem("userInfo") || {}
   if (userInfo.token) {
-    console.log('fuck2222')
     try {
-      console.log('fuck3333')
       const {menuList} = await API.getPermissionList()
-      console.log('fuck menuList', menuList)
       const routes = utils.generateRoute(menuList)
-      console.log('fuck menuList22222', routes)
       routes.map(route => {
-        console.log('route1', route)
-        console.log('route.component',route.component)
         let url = `../views/${route.component}.vue`
-        route.component = () => import(url)
-        console.log('route->',route)
+        route.component = modules[`${url}`];
         router.addRoute("home", route)
       })
-      console.log('fuck4444', routes)
     } catch (error) {
-      console.log('fuck4444')
       console.log('error', error)
     }
   }
