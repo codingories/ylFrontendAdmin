@@ -181,9 +181,6 @@ const handleSubmit = () => {
         action: action.value
       };
       let res = await proxy.$api.userSubmit(params);
-      // if (res) {
-      //
-      // }
       showModal.value = false;
       let text;
       if (this.action === 'create') {

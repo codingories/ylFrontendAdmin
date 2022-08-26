@@ -102,8 +102,10 @@ const getNoticeCount = async () => {
 const getMenuList = async () => {
   try {
     // userMenu.value = await api.getMenuList()
-    userMenu.value = await api.getPermissionList()
-
+    const {menuList, actionList} = await api.getPermissionList()
+    userMenu.value = menuList
+    this.$store.commit('saveMenuList', menuList)
+    this.$store.commit('saveActionList', actionList)
   } catch (error) {
     console.error(error)
   }

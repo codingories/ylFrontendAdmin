@@ -22,6 +22,13 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(ElementPlus, {size: 'small'})
 app.use(store)
 
+// app.directive('has', {
+//   beforeMount: (el, binding) => {
+//     console.log('el', el)
+//     console.log('binding', binding)
+//   }
+// })
+
 app.config.globalProperties.$request = request
 app.config.globalProperties.$api = api
 app.config.globalProperties.$storage = storage

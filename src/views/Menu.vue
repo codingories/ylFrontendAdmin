@@ -157,8 +157,8 @@ export default {
         },
         {
           label: '权限标识',
-          prop: 'menuType',
-          width: 80,
+          prop: 'menuCode',
+          width: 120,
         },
         {
           label: '路由地址',

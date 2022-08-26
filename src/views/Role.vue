@@ -1,6 +1,6 @@
 <template>
   <div class="role-manage">
-    <!--    <h3>用户管理</h3>-->
+    <!--    <h3>角色管理</h3>-->
     <!--    {{actionMap}}-->
     <div class="query-form">
       <el-form :inline="true" :model="queryForm" ref="queryForm">
@@ -33,7 +33,7 @@
             label="操作"
             width="220">
           <template #default="scope">
-            <el-button  @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button @click="handleEdit(scope.row)">编辑</el-button>
             <el-button type="primary" @click="handleOpenPermission(scope.row)">设置权限</el-button>
             <el-button type="danger" size="small" @click="handleDel(scope.row._id)">删除</el-button>
           </template>
@@ -152,7 +152,7 @@ export default {
             let list = value.halfCheckedKeys || []
             list.map(key => {
               let name = this.actionMap[key]
-              if(key && name) names.push(this.actionMap[key])
+              if (key && name) names.push(this.actionMap[key])
             })
             return names.join(',')
           }
