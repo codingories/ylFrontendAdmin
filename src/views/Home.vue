@@ -101,7 +101,9 @@ const getNoticeCount = async () => {
 
 const getMenuList = async () => {
   try {
-    userMenu.value = await api.getMenuList()
+    // userMenu.value = await api.getMenuList()
+    userMenu.value = await api.getPermissionList()
+
   } catch (error) {
     console.error(error)
   }

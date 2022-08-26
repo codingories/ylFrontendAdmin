@@ -181,12 +181,17 @@ const handleSubmit = () => {
         action: action.value
       };
       let res = await proxy.$api.userSubmit(params);
-      console.log('fuck res=>', res);
       // if (res) {
       //
       // }
       showModal.value = false;
-      proxy.$message.success('用户创建成功');
+      let text;
+      if (this.action === 'create') {
+        text = '创建';
+      } else {
+        text = '编辑';
+      }
+      proxy.$message.success(`用户${text}成功`);
       handleReset('dialogForm');
       getUserList();
     }
