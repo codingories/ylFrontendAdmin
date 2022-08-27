@@ -55,28 +55,30 @@
 
     </div>
     <el-dialog title="休假申请" v-model="showModal" width="70%">
-      <el-form ref="dialogForm" :model="leaveForm" label-width="120px">
-        <el-form-item label="休假类型" prop="applyType" required>
+      <el-form ref="dialogForm" :model="leaveForm" label-width="120px" :rules="rules">
+        <el-form-item label="休假类型" prop="applyType">
           <el-select v-model="leaveForm.applyType">
             <el-option :label="'事假'" :value="1"></el-option>
             <el-option :label="'调休'" :value="2"></el-option>
             <el-option :label="'年假'" :value="3"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="休假类型" prop="applyType" required>
+        <el-form-item label="休假类型" prop="applyType">
           <el-row align='middle'>
             <el-col :span="8">
-              <el-form-item prop="startTime" required>
+              <el-form-item prop="startTime">
                 <el-date-picker v-model="leaveForm.startTime"
                                 type="date" placeholder="选择开始日期"
+                                @change="(val) => handleDateChange('startTime', val)"
                 ></el-date-picker>
               </el-form-item>
             </el-col>
             <el-col :span="1" class="xxx">-</el-col>
             <el-col :span="8">
-              <el-form-item prop="endTime" required>
+              <el-form-item prop="endTime">
                 <el-date-picker v-model="leaveForm.endTime"
                                 type="date" placeholder="选择结束日期"
+                                @change="(val) => handleDateChange('endTime', val)"
                 ></el-date-picker>
               </el-form-item>
             </el-col>
@@ -84,21 +86,11 @@
         </el-form-item>
 
         <el-form-item label="休假时长" required>
-          0天
+          {{leaveForm.leaveTime}}
         </el-form-item>
-        <el-form-item label="休假原因" props="reasons" required>
+        <el-form-item label="休假原因" prop="reasons" required>
           <el-input type="textarea" :row="3" placeholder="请输入休假原因" v-model="leaveForm.reasons"></el-input>
         </el-form-item>
-        <!--        <el-form-item label="休假类型" prop="applyType" required>-->
-        <!--          <el-date-picker v-model="leaveForm.startTime"-->
-        <!--            type="date" placeholder="选择开始日期"-->
-        <!--          ></el-date-picker>-->
-        <!--        </el-form-item>-->
-        <!--        <el-form-item label="休假类型" prop="applyType" required>-->
-        <!--          <el-date-picker v-model="leaveForm.endTime"-->
-        <!--                          type="date" placeholder="选择结束日期"-->
-        <!--          ></el-date-picker>-->
-        <!--        </el-form-item>-->
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -149,6 +141,20 @@ const leaveForm = reactive({
   reasons: ''
 });
 
+const handleDateChange = (key, val) => {
+  let {startTime, endTime} = leaveForm;
+  if (!startTime || !endTime) return;
+  if (startTime > endTime) {
+    proxy.$message.error('开始日期不能晚于结束日期');
+    leaveForm.leaveTime = '0天';
+    setTimeout(() => {
+      leaveForm[key] = '';
+    }, 0);
+  } else {
+    leaveForm.leaveTime = ((endTime - startTime) / (24 * 60 * 60 * 1000))+ 1 + '天';
+  }
+};
+
 const applyList = ref([]);
 
 const getApplyList = async () => {
@@ -167,24 +173,14 @@ const handleClose = () => {
 const handleSubmit = () => {
   proxy.$refs.dialogForm.validate(async (valid) => {
     if (valid) {
-      //toRaw的作用是将响应式对象转为普通对象，避免修改某些值影响数据
-      // let {userEmail} = toRaw(userForm);
-      // let params = {
-      //   ...userForm,
-      //   userEmail: userEmail + '@myCompany.com',
-      //   action: action.value
-      // };
-      // let res = await proxy.$api.userSubmit(params);
-      // showModal.value = false;
-      // let text;
-      // if (action.value === 'create') {
-      //   text = '创建';
-      // } else {
-      //   text = '编辑';
-      // }
-      // proxy.$message.success(`用户${text}成功`);
-      // handleReset('dialogForm');
-      // getUserList();
+      let params = {
+        ...leaveForm,
+        action: action.value
+      };
+      let res = await api.leaveOperate(params);
+      proxy.$message.success('创建成功');
+      handleClose();
+      await getApplyList();
     }
   });
 };
@@ -239,29 +235,17 @@ const userForm = reactive({
 
 
 // 定义表单校验规则
-const rules = reactive({
-  userName: [
-    {required: true, message: '请输入用户名称', trigger: 'blur'}
+const rules = {
+  startTime: [
+    {type: 'date', required: true, message: '请输入开始日期', trigger: 'change'}
   ],
-  userEmail: [
-    {required: true, message: '请输入用户邮箱', trigger: 'blur'}
+  endTime: [
+    {type: 'date', required: true, message: '请输入结束日期', trigger: 'change'}
   ],
-  mobile: [
-    {
-      // /^1[3|4|5|7|8|9]\d{9}$/
-      pattern: /^1\d{10}$/,
-      message: '请输入正确的手机号格式',
-      trigger: 'blur'
-    }
+  reasons: [
+    {required: true, message: '请输入休假原因', trigger: ['blur', 'change']}
   ],
-  deptId: [
-    {
-      required: true,
-      message: '请输入用户邮箱',
-      trigger: 'blur'
-    }
-  ]
-});
+};
 
 // 所有的部门列表
 const deptList = ref([]);
