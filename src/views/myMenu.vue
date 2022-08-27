@@ -167,7 +167,7 @@ export default {
         },
         {
           label: '组件路径',
-          prop: 'path',
+          prop: 'component',
           width: 130
         },
         {

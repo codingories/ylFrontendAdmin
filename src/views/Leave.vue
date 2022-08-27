@@ -3,20 +3,15 @@
     <!--    <h3>用户管理</h3>-->
     <div class="query-form">
 
-      <el-form :inline="true" :model="user" ref="form">
-        <el-form-item label="用户ID" prop="userId">
-          <el-input v-model="user.userId" pl aceholder="请输入用户ID"></el-input>
-        </el-form-item>
-        <el-form-item label="用户名称" prop="userName">
-          <el-input v-model="user.userName" placeholder="请输入用户名称"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="用户状态" prop="state">
+      <el-form :inline="true" :model="queryForm" ref="form">
+        <el-form-item label="审批状态" prop="state">
           <el-select v-model="user.state">
-            <el-option :value="0" label="所有"></el-option>
-            <el-option :value="1" label="在职"></el-option>
-            <el-option :value="2" label="离职"></el-option>
-            <el-option :value="3" label="试用期"></el-option>
+            <el-option :value="''" label="全部"></el-option>
+            <el-option :value="1" label="待审批"></el-option>
+            <el-option :value="2" label="审批中"></el-option>
+            <el-option :value="3" label="审批拒绝"></el-option>
+            <el-option :value="4" label="审批通过"></el-option>
+            <el-option :value="5" label="作废"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -62,64 +57,6 @@
       />
 
     </div>
-    <el-dialog v-model="showModal" title="用户新增">
-      <el-form ref="dialogForm" :model="userForm" :label-width="100" :rules="rules">
-        <el-form-item label="用户名" prop="userName">
-          <el-input v-model="userForm.userName" placeholder="请输入用户名称"
-                    :disabled="action === 'edit'"
-          />
-        </el-form-item>
-        <el-form-item label="邮箱" prop="userEmail">
-          <el-input v-model="userForm.userEmail" placeholder="请输入用户邮箱"
-                    :disabled="action === 'edit'"
-          >
-            <template #append>
-              @myCompany.com
-            </template>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="手机号" prop="mobile">
-          <el-input v-model="userForm.mobile" placeholder="请输入用户手机号"/>
-        </el-form-item>
-        <el-form-item label="岗位" prop="job">
-          <el-input v-model="userForm.job" placeholder="请输入用户岗位"/>
-        </el-form-item>
-        <el-form-item label="状态" prop="state">
-          <el-select v-model="userForm.state" placeholder="请输入用户状态">
-            <el-option :value="1" label="在职"></el-option>
-            <el-option :value="2" label="离职"></el-option>
-            <el-option :value="3" label="试用期"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="系统角色 " prop="roleList">
-          <el-select v-model="userForm.roleList" placeholder="请输入用户系统角色" multiple style="width: 100%">
-            <el-option
-                v-for="role in roleList"
-                :key="role._id"
-                :label="role.roleName"
-                :value="role._id"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="部门" prop="deptId">
-          <!-- value: '_id', label: 'deptName'  可以指定空间用的value 和label 对应接口的哪个字段 -->
-          <el-cascader
-              v-model="userForm.deptId"
-              placeholder="请选择所属部门"
-              :options="deptList"
-              :props="{ checkStrictly: true, value: '_id', label: 'deptName', expandTrigger: 'click' }"
-              clearable
-              style="width: 100%"
-          ></el-cascader>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-      <span class="dialog-footer">
-          <el-button @click="handleClose">取 消</el-button>
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-      </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -147,9 +84,7 @@ const userList = ref([]);
 
 // 初始化接口调用
 onMounted(() => {
-  getUserList();
-  getDeptList();
-  getRoleAllList();
+
 });
 // 获取用户表格数据
 const getUserList = async () => {
@@ -249,25 +184,8 @@ const handleCurrentChange = (current) => {
 const userForm = reactive({
   state: 3
 });
-// 弹框显示
-const showModal = ref(false);
-const handleCreate = () => {
-  action.value = 'add';
-  showModal.value = true;
-};
-// 用户编辑
-const handleEdit = (row) => {
-  action.value = 'edit';
-  showModal.value = true;
-  // 不能直接写,reset会有问题,会觉得初始状态就有值
-  // Object.assign(userForm, row);
-  // 等待dom渲染完成再执行，初始状态是空
-  proxy.$nextTick(() => {
-    // 把row的数据浅拷贝给userForm
-    Object.assign(userForm, row);
-    console.log('userForm', userForm);
-  });
-};
+
+
 // 定义表单校验规则
 const rules = reactive({
   userName: [
