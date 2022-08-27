@@ -4,8 +4,8 @@
     <div class="query-form">
 
       <el-form :inline="true" :model="queryForm" ref="form">
-        <el-form-item label="审批状态" prop="state">
-          <el-select v-model="user.state">
+        <el-form-item label="审批状态" prop="applyState">
+          <el-select v-model="queryForm.applyState">
             <el-option :value="''" label="全部"></el-option>
             <el-option :value="1" label="待审批"></el-option>
             <el-option :value="2" label="审批中"></el-option>
@@ -15,19 +15,17 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleQuery">查询</el-button>
+          <el-button type="primary" @click="getApplyList">查询</el-button>
           <el-button @click="handleReset('form')">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="base-table">
       <div class="action">
-        <el-button type="primary" @click="handleCreate" v-has:add="'user-create'">新增</el-button>
-        <el-button type="danger" @click="handlePatchDel">批量删除</el-button>
+        <el-button type="primary">申请休假</el-button>
       </div>
       <el-table
-          @selection-change="handleSelectionChange"
-          :data="userList">
+          :data="applyList">
         <el-table-column type="selection" width="55"/>
         <el-table-column
             v-for="(item) in columns"
@@ -42,8 +40,8 @@
             label="操作"
             width="150">
           <template #default="scope">
-            <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="small" @click="handleDel(scope.row)">删除</el-button>
+            <el-button type="primary">查看</el-button>
+            <el-button type="danger" size="small">作废</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -67,12 +65,10 @@ import utils from '../utils/utils.js';
 
 const {proxy, ctx} = getCurrentInstance(); // ctx调用全局会有问题, 通过proxy来调用全局方法属性
 
-// 初始化用户表单对象
-const user = reactive({
-  userId: '',
-  userName: '',
-  state: 1
+const queryForm = reactive({
+  applyState: ''
 });
+
 // 初始化分页
 const pager = reactive({
   pageNum: 1,
@@ -84,18 +80,23 @@ const userList = ref([]);
 
 // 初始化接口调用
 onMounted(() => {
-
+  getApplyList();
 });
-// 获取用户表格数据
-const getUserList = async () => {
-  let params = {...user, ...pager};
-  try {
-    const {list, page} = await api.getUserList(params);
-    userList.value = list;
-    pager.total = page.total;
-  } catch (e) {
-    console.log(e);
-  }
+
+const applyList = ref([])
+
+const getApplyList = async () => {
+  let params = {...queryForm, ...pager};
+  let {list, page} = await api.getApplyList(params)
+  applyList.value = list
+  pager.total = page.total
+  // try {
+  //   const {list, page} = await api.getUserList(params);
+  //   userList.value = list;
+  //   pager.total = page.total;
+  // } catch (e) {
+  //   console.log(e);
+  // }
 };
 
 // 用户弹窗关闭
@@ -143,13 +144,6 @@ const handleDel = async (row) => {
   await getUserList();
 };
 
-const handleSelectionChange = (list) => {
-  let arr = [];
-  list.map(item => {
-    arr.push(item.userId);
-  });
-  checkedUserIds.value = arr;
-};
 // 选中用户列表的对象
 const checkedUserIds = ref([]);
 // 批量删除
@@ -231,45 +225,51 @@ const getRoleAllList = async () => {
 // 定义动态表格头
 const columns = reactive([
   {
-    label: '用户ID', prop: 'userId'
+    label: '单号', prop: 'orderNo'
   },
   {
-    label: '用户名', prop: 'userName',
+    label: '休假时间', prop: '', formatter(row, column, value) {
+      return utils.formatDate(new Date(row.startTime), 'yyyy-MM-dd') + '到'
+          + utils.formatDate(new Date(row.endTime), 'yyyy-MM-dd');
+    }
   },
   {
-    label: '用户邮箱', prop: 'userEmail'
+    label: '休假时长', prop: 'leaveTime'
   },
   {
-    label: '用户角色', prop: 'role',
+    label: '休假类型', prop: 'applyType',
     formatter(row, column, value) {
       return {
-        0: '管理员',
-        1: '普通用户'
+        1: '事假',
+        2: '调休',
+        3: '年假'
       }[value];
     }
   },
   {
-    label: '用户状态', prop: 'state',
+    label: '休假原因', prop: 'reason'
+  },
+  {
+    label: '申请时间', prop: 'createTime', width: 180, formatter(row, column, value) {
+      return utils.formatDate(new Date(value));
+    }
+  },
+  {
+    label: '审批人', prop: 'auditUser', width: 180
+  },
+  {
+    label: '当前审批人', prop: 'curAuditUserName', width: 180
+  },
+  {
+    label: '审批状态', prop: 'applyState', width: 180,
     formatter(row, column, value) {
       return {
-        1: '在职',
-        2: '离职',
-        3: '试用期'
+        1: '待审批',
+        2: '审批中',
+        3: '审批拒绝',
+        4: '审批通过',
+        5: '作废'
       }[value];
-    }
-  },
-  {
-    label: '用户名', prop: 'userName',
-  },
-  {
-    label: '注册时间', prop: 'createTime', width: 180, formatter(row, column, value) {
-      return utils.formatDate(new Date(value));
-    }
-  },
-  {
-    label: '最后登录时间', prop: 'lastLoginTime', width: 180,
-    formatter(row, column, value) {
-      return utils.formatDate(new Date(value));
     }
   },
 ]);

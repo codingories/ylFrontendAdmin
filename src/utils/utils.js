@@ -30,6 +30,7 @@ export default {
   },
   // 递归算法生成动态路由
     generateRoute(list) {
+      console.log('list=>', JSON.parse(JSON.stringify(list)))
       let routes = []
       const deepList = (list) => {
         while (list.length) {
