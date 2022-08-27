@@ -101,7 +101,6 @@ const getNoticeCount = async () => {
 
 const getMenuList = async () => {
   try {
-    // userMenu.value = await api.getMenuList()
     const {menuList, actionList} = await api.getPermissionList()
     userMenu.value = menuList
     store.commit('saveMenuList', menuList)
