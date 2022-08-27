@@ -39,8 +39,8 @@
             label="操作"
             width="150">
           <template #default="scope">
-            <el-button type="primary">查看</el-button>
-            <el-button type="danger" size="small">作废</el-button>
+            <el-button type="primary" @click="handleDetail(scope.row)">查看</el-button>
+            <el-button type="danger" size="small" @click="handleDelete(scope.row._id)">作废</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -73,7 +73,7 @@
                 ></el-date-picker>
               </el-form-item>
             </el-col>
-            <el-col :span="1" class="xxx">-</el-col>
+            <el-col :span="1" class="center">-</el-col>
             <el-col :span="8">
               <el-form-item prop="endTime">
                 <el-date-picker v-model="leaveForm.endTime"
@@ -86,7 +86,7 @@
         </el-form-item>
 
         <el-form-item label="休假时长" required>
-          {{leaveForm.leaveTime}}
+          {{ leaveForm.leaveTime }}
         </el-form-item>
         <el-form-item label="休假原因" prop="reasons" required>
           <el-input type="textarea" :row="3" placeholder="请输入休假原因" v-model="leaveForm.reasons"></el-input>
@@ -98,6 +98,33 @@
             <el-button type="primary" @click="handleSubmit">确 定</el-button>
         </span>
       </template>
+    </el-dialog>
+    <el-dialog title="申请休假详情" width="50%" v-model="showDetailModal">
+      <el-steps :active="active" finish-status="success" align-center>
+        <el-step title="步骤 1"></el-step>
+        <el-step title="步骤 2"></el-step>
+        <el-step title="步骤 3"></el-step>
+        <el-form label-width="120px" label-suffix=":">
+          <el-form-item label="休假类型">
+            <div>{{ detail.applyTypeName }}</div>
+          </el-form-item>
+          <el-form-item label="休假时间">
+            <div>{{ detail.time }}</div>
+          </el-form-item>
+          <el-form-item label="休假时长">
+            <div>{{ detail.leaveTime }}</div>
+          </el-form-item>
+          <el-form-item label="休假原因">
+            <div>{{ detail.reasons }}</div>
+          </el-form-item>
+          <el-form-item label="审批状态">
+            <div>{{ detail.applyStateName }}</div>
+          </el-form-item>
+          <el-form-item label="审批人">
+            <div>{{ detail.curAuditName }}</div>
+          </el-form-item>
+        </el-form>
+      </el-steps>
     </el-dialog>
   </div>
 </template>
@@ -112,7 +139,7 @@ const {proxy, ctx} = getCurrentInstance(); // ctx调用全局会有问题, 通�
 const queryForm = reactive({
   applyState: ''
 });
-
+const showDetailModal = ref(true);
 const showModal = ref(false);
 // 初始化分页
 const pager = reactive({
@@ -122,6 +149,7 @@ const pager = reactive({
 });
 // 初始化用户列表
 const userList = ref([]);
+const detail = ref({});
 // 点击申请休假，展示弹框
 const handleApply = () => {
   showModal.value = true;
@@ -151,7 +179,7 @@ const handleDateChange = (key, val) => {
       leaveForm[key] = '';
     }, 0);
   } else {
-    leaveForm.leaveTime = ((endTime - startTime) / (24 * 60 * 60 * 1000))+ 1 + '天';
+    leaveForm.leaveTime = ((endTime - startTime) / (24 * 60 * 60 * 1000)) + 1 + '天';
   }
 };
 
@@ -187,7 +215,7 @@ const handleSubmit = () => {
 
 // 查询事件，获取用户列表
 const handleQuery = () => {
-  getUserList();
+
 };
 // 用户单个删除
 const handleDel = async (row) => {
@@ -257,13 +285,30 @@ const getDeptList = async () => {
   deptList.value = list;
 };
 
-// 角色列表查询
-const getRoleAllList = async () => {
-  let list = await proxy.$api.getRoleAllList();
-  roleList.value = list;
+
+const handleDetail = (row) => {
+  let data = {...row};
+  data.applyTypeName = {
+    1: "事假",
+    2: "调休",
+    3: "年假"
+  }[data.applyType]
+  data.time = utils.formatDate(new Date(data.startTime), 'yyyy-MM-dd') + '到'
+      + utils.formatDate(new Date(data.endTime), 'yyyy-MM-dd');
+  data.applyStateName = {
+    1: '待审批',
+    2: '审批中',
+    3: '审批拒绝',
+    4: '审批通过',
+    5: '作废'
+  }[data.applyState];
+  detail.value = data
+  showDetailModal.value = true;
 };
 
+const handleDelete = (row) => {
 
+};
 // 定义动态表格头
 const columns = reactive([
   {
@@ -318,7 +363,7 @@ const columns = reactive([
 </script>
 
 <style>
-.xxx {
+.center {
   display: flex;
   justify-content: center;
 }
