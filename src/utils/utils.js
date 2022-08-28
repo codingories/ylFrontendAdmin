@@ -2,7 +2,6 @@
  * 工具函数封装
  */
 export default {
-  //
   formatDate(date, rule) {
     let fmt = rule || 'yyyy-MM-dd hh:mm:ss'
     if (/(y+)/.test(fmt)) {
