@@ -112,7 +112,7 @@ const getMenuList = async () => {
 
 const handleLogout = (key) => {
   if (key === 'email') return;
-  store.commit('saveUserInfo', '')
+  store.commit('saveUserInfo', {})
   userInfo.value = {};
   router.push('/login')
 }

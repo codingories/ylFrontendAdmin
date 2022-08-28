@@ -1,6 +1,6 @@
 <template>
   <div class="user-manage">
-    <!--    <h3>用户管理</h3>-->
+    <h3>待审批</h3>
     <div class="query-form">
       <el-form :inline="true" :model="queryForm" ref="form">
         <el-form-item label="审批状态" prop="applyState">
@@ -21,7 +21,6 @@
     </div>
     <div class="base-table">
       <div class="action">
-        <el-button type="primary" @click="handleApply">申请休假</el-button>
       </div>
       <el-table
           :data="applyList">
@@ -39,10 +38,9 @@
             label="操作"
             width="150">
           <template #default="scope">
-            <el-button type="primary" @click="handleDetail(scope.row)">查看</el-button>
-            <el-button type="danger" size="small" @click="handleDelete(scope.row._id)"
-                       v-if="[1,2].includes(scope.row.applyState)"
-            >作废
+            <el-button type="primary" @click="handleDetail(scope.row)"
+                       v-if="scope.row.curAuditUserName === userInfo.userName && [1,2].includes(scope.row.applyState)"
+            >审核
             </el-button>
           </template>
         </el-table-column>
@@ -57,51 +55,6 @@
       />
 
     </div>
-    <el-dialog title="休假申请" v-model="showModal" width="70%">
-      <el-form ref="dialogForm" :model="leaveForm" label-width="120px" :rules="rules">
-        <el-form-item label="休假类型" prop="applyType">
-          <el-select v-model="leaveForm.applyType">
-            <el-option :label="'事假'" :value="1"></el-option>
-            <el-option :label="'调休'" :value="2"></el-option>
-            <el-option :label="'年假'" :value="3"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="休假类型" prop="applyType">
-          <el-row align='middle'>
-            <el-col :span="8">
-              <el-form-item prop="startTime">
-                <el-date-picker v-model="leaveForm.startTime"
-                                type="date" placeholder="选择开始日期"
-                                @change="(val) => handleDateChange('startTime', val)"
-                ></el-date-picker>
-              </el-form-item>
-            </el-col>
-            <el-col :span="1" class="center">-</el-col>
-            <el-col :span="8">
-              <el-form-item prop="endTime">
-                <el-date-picker v-model="leaveForm.endTime"
-                                type="date" placeholder="选择结束日期"
-                                @change="(val) => handleDateChange('endTime', val)"
-                ></el-date-picker>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form-item>
-
-        <el-form-item label="休假时长" required>
-          {{ leaveForm.leaveTime }}
-        </el-form-item>
-        <el-form-item label="休假原因" prop="reasons" required>
-          <el-input type="textarea" :row="3" placeholder="请输入休假原因" v-model="leaveForm.reasons"></el-input>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-            <el-button @click="handleClose">取 消</el-button>
-            <el-button type="primary" @click="handleSubmit">确 定</el-button>
-        </span>
-      </template>
-    </el-dialog>
     <el-dialog title="申请休假详情" width="50%" v-model="showDetailModal" destroy-on-close>
       <el-steps :active="detail.applyState>2?3:detail.applyState" finish-status="success" align-center>
         <el-step title="待审批"></el-step>
@@ -137,13 +90,12 @@ import {getCurrentInstance, onMounted, reactive, ref, toRaw} from 'vue';
 import api from '../api/index.js';
 import utils from '../utils/utils.js';
 
-const {proxy, ctx} = getCurrentInstance(); // ctx调用全局会有问题, 通过proxy来调用全局方法属性
+const {proxy} = getCurrentInstance(); // ctx调用全局会有问题, 通过proxy来调用全局方法属性
 
 const queryForm = reactive({
   applyState: 1
 });
 const showDetailModal = ref(false);
-const showModal = ref(false);
 const active = ref(0);
 // 初始化分页
 const pager = reactive({
@@ -154,12 +106,6 @@ const pager = reactive({
 // 初始化用户列表
 const userList = ref([]);
 const detail = ref({});
-// 点击申请休假，展示弹框
-const handleApply = () => {
-  showModal.value = true;
-  action.value = 'create';
-};
-const action = ref('create');
 
 // 初始化接口调用
 onMounted(() => {
@@ -172,6 +118,8 @@ const leaveForm = reactive({
   leaveTime: '0天',
   reasons: ''
 });
+
+const userInfo = proxy.$store.state.userInfo;
 
 const handleDateChange = (key, val) => {
   let {startTime, endTime} = leaveForm;
@@ -190,7 +138,7 @@ const handleDateChange = (key, val) => {
 const applyList = ref([]);
 
 const getApplyList = async () => {
-  let params = {...queryForm, ...pager};
+  let params = {...queryForm, ...pager, type: 'approve'};
   let {list, page} = await api.getApplyList(params);
   applyList.value = list;
   pager.total = page.total;
@@ -200,21 +148,6 @@ const getApplyList = async () => {
 const handleClose = () => {
   showModal.value = false;
   handleReset('dialogForm');
-};
-// 用户提交
-const handleSubmit = () => {
-  proxy.$refs.dialogForm.validate(async (valid) => {
-    if (valid) {
-      let params = {
-        ...leaveForm,
-        action: action.value
-      };
-      let res = await api.leaveOperate(params);
-      proxy.$message.success('创建成功');
-      handleClose();
-      await getApplyList();
-    }
-  });
 };
 
 // 查询事件，获取用户列表
@@ -302,24 +235,16 @@ const handleDetail = (row) => {
   showDetailModal.value = true;
 };
 
-const handleDelete = async (_id) => {
-  try {
-    let params = {
-      _id,
-      action: 'delete'
-    };
-    let res = await api.leaveOperate(params);
-    proxy.$message.success('删除成功成功');
-    getApplyList();
-  } catch (error) {
-    console.log(error);
-  }
-
-};
 // 定义动态表格头
 const columns = reactive([
   {
     label: '单号', prop: 'orderNo'
+  },
+  {
+    label: '申请人', prop: '',
+    formatter(row, column, value) {
+      return row.applyUser.userName;
+    }
   },
   {
     label: '休假时间', prop: '', formatter(row, column, value) {
