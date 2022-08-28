@@ -40,7 +40,10 @@
             width="150">
           <template #default="scope">
             <el-button type="primary" @click="handleDetail(scope.row)">查看</el-button>
-            <el-button type="danger" size="small" @click="handleDelete(scope.row._id)">作废</el-button>
+            <el-button type="danger" size="small" @click="handleDelete(scope.row._id)"
+                       v-if="[1,2].includes(scope.row.applyState)"
+            >作废
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -99,32 +102,32 @@
         </span>
       </template>
     </el-dialog>
-    <el-dialog title="申请休假详情" width="50%" v-model="showDetailModal">
-      <el-steps :active="active" finish-status="success" align-center>
-        <el-step title="步骤 1"></el-step>
-        <el-step title="步骤 2"></el-step>
-        <el-step title="步骤 3"></el-step>
-        <el-form label-width="120px" label-suffix=":">
-          <el-form-item label="休假类型">
-            <div>{{ detail.applyTypeName }}</div>
-          </el-form-item>
-          <el-form-item label="休假时间">
-            <div>{{ detail.time }}</div>
-          </el-form-item>
-          <el-form-item label="休假时长">
-            <div>{{ detail.leaveTime }}</div>
-          </el-form-item>
-          <el-form-item label="休假原因">
-            <div>{{ detail.reasons }}</div>
-          </el-form-item>
-          <el-form-item label="审批状态">
-            <div>{{ detail.applyStateName }}</div>
-          </el-form-item>
-          <el-form-item label="审批人">
-            <div>{{ detail.curAuditName }}</div>
-          </el-form-item>
-        </el-form>
+    <el-dialog title="申请休假详情" width="50%" v-model="showDetailModal" destroy-on-close>
+      <el-steps :active="detail.applyState>2?3:detail.applyState" finish-status="success" align-center>
+        <el-step title="待审批"></el-step>
+        <el-step title="审批中"></el-step>
+        <el-step title="审批通过/审批拒绝"></el-step>
       </el-steps>
+      <el-form label-width="120px" label-suffix=":">
+        <el-form-item label="休假类型">
+          <div>{{ detail.applyTypeName }}</div>
+        </el-form-item>
+        <el-form-item label="休假时间">
+          <div>{{ detail.time }}</div>
+        </el-form-item>
+        <el-form-item label="休假时长">
+          <div>{{ detail.leaveTime }}</div>
+        </el-form-item>
+        <el-form-item label="休假原因">
+          <div>{{ detail.reasons }}</div>
+        </el-form-item>
+        <el-form-item label="审批状态">
+          <div>{{ detail.applyStateName }}</div>
+        </el-form-item>
+        <el-form-item label="审批人">
+          <div>{{ detail.curAuditUserName }}</div>
+        </el-form-item>
+      </el-form>
     </el-dialog>
   </div>
 </template>
@@ -139,8 +142,9 @@ const {proxy, ctx} = getCurrentInstance(); // ctx调用全局会有问题, 通�
 const queryForm = reactive({
   applyState: ''
 });
-const showDetailModal = ref(true);
+const showDetailModal = ref(false);
 const showModal = ref(false);
+const active = ref(0);
 // 初始化分页
 const pager = reactive({
   pageNum: 1,
@@ -217,14 +221,6 @@ const handleSubmit = () => {
 const handleQuery = () => {
 
 };
-// 用户单个删除
-const handleDel = async (row) => {
-  await proxy.$api.userDel({
-    userIds: [row.userId]
-  });
-  proxy.$message.success('删除成功');
-  await getUserList();
-};
 
 // 选中用户列表的对象
 const checkedUserIds = ref([]);
@@ -289,10 +285,10 @@ const getDeptList = async () => {
 const handleDetail = (row) => {
   let data = {...row};
   data.applyTypeName = {
-    1: "事假",
-    2: "调休",
-    3: "年假"
-  }[data.applyType]
+    1: '事假',
+    2: '调休',
+    3: '年假'
+  }[data.applyType];
   data.time = utils.formatDate(new Date(data.startTime), 'yyyy-MM-dd') + '到'
       + utils.formatDate(new Date(data.endTime), 'yyyy-MM-dd');
   data.applyStateName = {
@@ -302,11 +298,22 @@ const handleDetail = (row) => {
     4: '审批通过',
     5: '作废'
   }[data.applyState];
-  detail.value = data
+  detail.value = data;
   showDetailModal.value = true;
 };
 
-const handleDelete = (row) => {
+const handleDelete = async (_id) => {
+  try {
+    let params = {
+      _id,
+      action: 'delete'
+    };
+    let res = await api.leaveOperate(params);
+    proxy.$message.success('删除成功成功');
+    getApplyList();
+  } catch (error) {
+    console.log(error);
+  }
 
 };
 // 定义动态表格头

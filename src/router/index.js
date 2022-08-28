@@ -98,6 +98,8 @@ async function loadAsyncRoutes() {
   let userInfo = storage.getItem("userInfo") || {}
   if (userInfo.token) {
     try {
+      console.log('API=>', API)
+      if(!API) return
       const {menuList} = await API.getPermissionList()
       const routes = utils.generateRoute(menuList)
       routes.map(route => {
