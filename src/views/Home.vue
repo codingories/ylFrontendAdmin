@@ -6,10 +6,10 @@
         <img src="../assets/images/logo.png" alt="">
         <span>Manager</span>
       </div>
-<!--      {{activeMenu}}-->
+      <!--      {{activeMenu}}-->
       <!--      导航菜单-->
       <el-menu
-          :default-active = "activeMenu"
+          :default-active="activeMenu"
           background-color="#001529"
           text-color="#fff"
           router
@@ -34,7 +34,9 @@
         </div>
 
         <div class="user-info">
-          <el-badge :is-dot="Boolean(noticeCount)" class="notice" type="danger">
+          <el-badge :is-dot="Boolean(noticeCount)" class="notice" type="danger"
+                    @click="$router.push('/audit/approve')"
+          >
             <el-icon>
               <bell/>
             </el-icon>
@@ -58,9 +60,9 @@
       </div>
       <div class="wrapper">
         <router-view></router-view>
-<!--        <div class="main-page">-->
-<!--          <router-view></router-view>-->
-<!--        </div>-->
+        <!--        <div class="main-page">-->
+        <!--          <router-view></router-view>-->
+        <!--        </div>-->
       </div>
     </div>
   </div>
@@ -68,7 +70,7 @@
 
 <script setup>
 
-import {onMounted, ref} from "vue"
+import {computed, onMounted, ref} from "vue"
 import {useStore} from "vuex"
 import {useRouter} from "vue-router"
 import api from "../api/index.js"
@@ -82,7 +84,6 @@ const toggle = () => {
   isCollapse.value = !isCollapse.value
 }
 const userInfo = store.state.userInfo
-const noticeCount = ref(0)
 const userMenu = ref([])
 const state = useStore()
 let activeMenu = ref(location.hash.slice(1))
@@ -93,7 +94,8 @@ onMounted(() => {
 
 const getNoticeCount = async () => {
   try {
-    noticeCount.value = await api.noticeCount()
+    const count = await api.noticeCount()
+    store.commit("saveNoticeCount", count)
   } catch (error) {
     console.error(error)
   }
@@ -109,6 +111,10 @@ const getMenuList = async () => {
     console.error(error)
   }
 }
+
+const noticeCount = computed(()=>{
+  return store.state.noticeCount
+})
 
 const handleLogout = (key) => {
   if (key === 'email') return;
@@ -208,6 +214,7 @@ export default {
         .notice {
           line-height: 30px;
           margin-right: 15px;
+          cursor: pointer;
         }
 
         .user-link {

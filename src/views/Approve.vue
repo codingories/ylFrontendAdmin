@@ -1,6 +1,6 @@
 <template>
   <div class="user-manage">
-    <h3>待审批</h3>
+    <!--    <h3>待审批</h3>-->
     <div class="query-form">
       <el-form :inline="true" :model="queryForm" ref="form">
         <el-form-item label="审批状态" prop="applyState">
@@ -82,7 +82,7 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-            <el-button @click=" ('pass')">审核通过</el-button>
+            <el-button @click="handleApprove('pass')">审核通过</el-button>
             <el-button type="primary" @click="handleApprove('refuse')">驳回</el-button>
         </span>
       </template>
@@ -94,6 +94,7 @@
 import {getCurrentInstance, onMounted, reactive, ref, toRaw} from 'vue';
 import api from '../api/index.js';
 import utils from '../utils/utils.js';
+import {useStore} from 'vuex';
 
 const {proxy} = getCurrentInstance(); // ctx调用全局会有问题, 通过proxy来调用全局方法属性
 
@@ -119,8 +120,7 @@ onMounted(() => {
 
 
 const userInfo = proxy.$store.state.userInfo;
-
-
+const store = useStore();
 const applyList = ref([]);
 const auditForm = reactive({
   remark: ''
@@ -137,12 +137,11 @@ const handleApprove = (action) => {
     if (valid) {
       let params = {action, remark: auditForm.remark, _id: detail.value._id};
       try {
-        let res = await proxy.$api.leaveApprove(params);
-        if (res) {
-          handleClose()
-          proxy.$message.success("处理成功")
-          await getApplyList()
-        }
+        await proxy.$api.leaveApprove(params);
+        handleClose();
+        proxy.$message.success('处理成功');
+        await getApplyList();
+        store.commit('saveNoticeCount', store.state.noticeCount - 1);
       } catch (error) {
 
       }
