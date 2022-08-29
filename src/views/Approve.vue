@@ -55,15 +55,10 @@
       />
 
     </div>
-    <el-dialog title="申请休假详情" width="50%" v-model="showDetailModal" destroy-on-close>
-      <el-steps :active="detail.applyState>2?3:detail.applyState" finish-status="success" align-center>
-        <el-step title="待审批"></el-step>
-        <el-step title="审批中"></el-step>
-        <el-step title="审批通过/审批拒绝"></el-step>
-      </el-steps>
-      <el-form label-width="120px" label-suffix=":">
-        <el-form-item label="休假类型">
-          <div>{{ detail.applyTypeName }}</div>
+    <el-dialog title="审核" width="50%" v-model="showDetailModal" destroy-on-close>
+      <el-form ref="dialogForm" :model="auditForm" label-width="120px" label-suffix=":" :rules="rules">
+        <el-form-item label="申请人">
+          <div>{{ detail.applyUser.userName }}</div>
         </el-form-item>
         <el-form-item label="休假时间">
           <div>{{ detail.time }}</div>
@@ -80,7 +75,17 @@
         <el-form-item label="审批人">
           <div>{{ detail.curAuditUserName }}</div>
         </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input type="textarea" :rows="3" placeholder="请输入审核备注" v-model="auditForm.remark">
+          </el-input>
+        </el-form-item>
       </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+            <el-button @click=" ('pass')">审核通过</el-button>
+            <el-button type="primary" @click="handleApprove('refuse')">驳回</el-button>
+        </span>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -111,32 +116,15 @@ const detail = ref({});
 onMounted(() => {
   getApplyList();
 });
-const leaveForm = reactive({
-  applyType: 1,
-  startTime: '',
-  endTime: '',
-  leaveTime: '0天',
-  reasons: ''
-});
+
 
 const userInfo = proxy.$store.state.userInfo;
 
-const handleDateChange = (key, val) => {
-  let {startTime, endTime} = leaveForm;
-  if (!startTime || !endTime) return;
-  if (startTime > endTime) {
-    proxy.$message.error('开始日期不能晚于结束日期');
-    leaveForm.leaveTime = '0天';
-    setTimeout(() => {
-      leaveForm[key] = '';
-    }, 0);
-  } else {
-    leaveForm.leaveTime = ((endTime - startTime) / (24 * 60 * 60 * 1000)) + 1 + '天';
-  }
-};
 
 const applyList = ref([]);
-
+const auditForm = reactive({
+  remark: ''
+});
 const getApplyList = async () => {
   let params = {...queryForm, ...pager, type: 'approve'};
   let {list, page} = await api.getApplyList(params);
@@ -144,9 +132,27 @@ const getApplyList = async () => {
   pager.total = page.total;
 };
 
+const handleApprove = (action) => {
+  proxy.$refs.dialogForm.validate(async (valid) => {
+    if (valid) {
+      let params = {action, remark: auditForm.remark, _id: detail.value._id};
+      try {
+        let res = await proxy.$api.leaveApprove(params);
+        if (res) {
+          handleClose()
+          proxy.$message.success("处理成功")
+          await getApplyList()
+        }
+      } catch (error) {
+
+      }
+    }
+  });
+};
+
 // 用户弹窗关闭
 const handleClose = () => {
-  showModal.value = false;
+  showDetailModal.value = false;
   handleReset('dialogForm');
 };
 
@@ -193,14 +199,8 @@ const userForm = reactive({
 
 // 定义表单校验规则
 const rules = {
-  startTime: [
-    {type: 'date', required: true, message: '请输入开始日期', trigger: 'change'}
-  ],
-  endTime: [
-    {type: 'date', required: true, message: '请输入结束日期', trigger: 'change'}
-  ],
-  reasons: [
-    {required: true, message: '请输入休假原因', trigger: ['blur', 'change']}
+  remark: [
+    {required: true, message: '请输入审核备注', trigger: 'change'}
   ],
 };
 
