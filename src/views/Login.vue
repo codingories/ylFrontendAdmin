@@ -25,9 +25,12 @@ import {reactive, ref} from "vue"
 import api from '../api'
 import {useRouter} from "vue-router"
 import {useStore} from "vuex"
+import storage from "../utils/storage.js"
+import API from "../api/index.js"
+import utils from "../utils/utils.js"
 const user = reactive({
-  userName: "",
-  userPwd: ""
+  userName: "admin",
+  userPwd: "123456"
 })
 const userFormRef = ref()
 const router = useRouter()
@@ -40,15 +43,34 @@ const rules = reactive({
   ]
 })
 const store = useStore()
+
+async function loadAsyncRoutes() {
+  let userInfo = storage.getItem("userInfo") || {}
+  if (userInfo.token) {
+    try {
+      const {menuList} = API.getPermissionList()
+      const routes = utils.generateRoute(menuList)
+      routes.map(route => {
+        let url = `../views/${route.component}.vue`
+        route.component = () => import(url)
+        router.addRoute("home", route)
+      })
+    } catch (error) {
+
+    }
+  }
+}
+
 const login = async (formEl) => {
   if (!formEl) {
     return
   }
-  await formEl.validate((valid, fields) => {
+  await formEl.validate( (valid, fields) => {
     if (valid) {
-      api.login(user).then(res=>{
+      api.login(user).then(async res=>{
         store.commit('saveUserInfo', res)
-        router.push('/welcome')
+        await loadAsyncRoutes();
+        await router.push('/welcome')
       })
     } else {
       console.log('error submit!', fields)

@@ -23,6 +23,22 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(ElementPlus, {size: 'small'}).use(QueryForm)
 app.use(store)
 
+app.directive('has', {
+  beforeMount: (el, binding) => {
+    // 获取按钮权限
+    let userAction = storage.getItem("actionList")
+    let value = binding.value
+    // 判断列表中是否有对应按钮权限标识
+    let hasPermission = userAction.includes(value)
+    if (!hasPermission) {
+      el.style = "display:none"
+      setTimeout(()=>{
+        el.parentNode.removeChild(el)
+      }, 0)
+    }
+  }
+})
+
 app.config.globalProperties.$request = request
 app.config.globalProperties.$api = api
 app.config.globalProperties.$storage = storage

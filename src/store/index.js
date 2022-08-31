@@ -6,7 +6,10 @@ import mutations from './mutations.js'
 import {createStore} from "vuex"
 
 const state = {
-  userInfo: "" || storage.getItem("userInfo")
+  userInfo: storage.getItem("userInfo") || {},
+  menuList: storage.getItem("menuList") || [],
+  actionList: storage.getItem("actionList") || [],
+  noticeCount: 0
 }
 export default createStore({
   state,

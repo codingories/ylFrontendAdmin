@@ -18,15 +18,23 @@ export default {
       url: '/leave/count',
       method: 'get',
       data: {},
-      mock: true
+      mock: false
     })
   },
-  getMenuList() {
+  getMenuList(params) {
     return request({
       url: '/menu/list',
       method: 'get',
+      data: params,
+      mock: false
+    })
+  },
+  getPermissionList() {
+    return request({
+      url: '/users/permissionList',
+      method: 'get',
       data: {},
-      mock: true
+      mock: false
     })
   },
   getUserList(params) {
@@ -37,6 +45,14 @@ export default {
       mock: false
     })
   },
+  getAllUserList() {
+    return request({
+      url: '/users/all/list',
+      method: 'get',
+      data: {},
+      mock: false
+    })
+  },
   userDel(params) {
     return request({
       url: '/users/delete',
@@ -44,12 +60,20 @@ export default {
       data: params,
     })
   },
-  getDeptList() {
+  getDeptList(params) {
     return request({
       url: '/dept/list',
       method: 'get',
-      data: {},
-      mock: true
+      data: params,
+      mock: false
+    })
+  },
+  deptOperate(params) {
+    return request({
+      url: '/dept/operate',
+      method: 'post',
+      data: params,
+      mock: false
     })
   },
   getRoleList(params) {
@@ -57,12 +81,68 @@ export default {
       url: '/roles/list',
       method: 'get',
       data: params,
-      mock: true
+      mock: false
+    })
+  },
+  getRoleAllList(params) {
+    return request({
+      url: '/roles/allList',
+      method: 'get',
+      data: params,
+      mock: false
     })
   },
   userSubmit(params) {
     return request({
       url: '/users/operate',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  menuSubmit(params) {
+    return request({
+      url: '/menu/operate',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  roleOperate(params) {
+    return request({
+      url: '/roles/operate',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  updatePermission(params) {
+    return request({
+      url: '/roles/update/permission',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  getApplyList(params) {
+    return request({
+      url: '/leave/list',
+      method: 'get',
+      data: params,
+      mock: false
+    })
+  },
+  leaveOperate(params) {
+    return request({
+      url: '/leave/operate',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  leaveApprove(params) {
+    return request({
+      url: '/leave/approve',
       method: 'post',
       data: params,
       mock: false

@@ -26,5 +26,30 @@ export default {
       }
       return fmt
     }
+  },
+  // 递归算法生成动态路由
+    generateRoute(list) {
+      console.log('list=>', JSON.parse(JSON.stringify(list)))
+      let routes = []
+      const deepList = (list) => {
+        while (list.length) {
+          let item = list.pop()
+          if (item.action) {
+            routes.push({
+              name: item.component,
+              path: item.path,
+              meta: {
+                title: item.menuName
+              },
+              component: item.component,
+            })
+          }
+          if (item.children && !item.action) {
+            deepList(item.children)
+          }
+        }
+      }
+      deepList(list)
+    return routes
   }
 }
