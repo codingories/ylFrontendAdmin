@@ -8,43 +8,48 @@
     >
       <template v-for="item in columns" :key="item.prop">
         <el-table-column
-           type="selection"
-           width="55"
-           v-if="item.type === 'selection'"
-           key="selection"
+            type="selection"
+            width="55"
+            v-if="item.type === 'selection'"
+            key="selection"
         >
         </el-table-column>
         <el-table-column
-          v-else
-          v-bind="item"
+            v-else-if="!item.type"
+            v-bind="item"
         >
         </el-table-column>
+<!--        v-if="btn.visible"-->
+        <el-table-column v-if="item.type === 'action'" v-bind="item" size="mini"  #default="scope">
+          <template v-for="(btn,index) in item.list" :key="index" >
+            <el-button :type="btn.type ||'text'" @click="handleAction(index, scope.row)">
+              {{ btn.text }}
+            </el-button>
+          </template>
+        </el-table-column>
       </template>
-<!--      <el-table-column-->
-<!--          label="操作"-->
-<!--          width="150">-->
-<!--        <template #default="scope">-->
-<!--          <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>-->
-<!--          <el-button type="danger" size="small" @click="handleDel(scope.row)">删除</el-button>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
     </el-table>
-<!--    <el-pagination-->
-<!--        class="pagination"-->
-<!--        background-->
-<!--        layout="prev, pager, next, jumper"-->
-<!--        :total="pager.total"-->
-<!--        :page-size="pager.pageSize"-->
-<!--        @current-change="handleCurrentChange"-->
-<!--    />-->
+    <!--    <el-pagination-->
+    <!--        class="pagination"-->
+    <!--        background-->
+    <!--        layout="prev, pager, next, jumper"-->
+    <!--        :total="pager.total"-->
+    <!--        :page-size="pager.pageSize"-->
+    <!--        @current-change="handleCurrentChange"-->
+    <!--    />-->
   </div>
 </template>
 <script>
 export default {
   name: 'BaseTable',
   props: ["columns"],
-  setup() {
-
+  setup(props, context) {
+    const handleAction = (index, row) => {
+      context.emit("handleAction", {index, row: {...row}})
+    }
+    return {
+      handleAction
+    }
   },
 }
 </script>

@@ -6,44 +6,10 @@
           :form="form" v-model="user" @update:handleQuery="handleQuery" @reset="handleReset('form')"
       ></query-form>
     </div>
-<!--    <div class="base-table">-->
-<!--      <div class="action">-->
-<!--        <el-button type="primary" @click="handleCreate">新增</el-button>-->
-<!--        <el-button type="danger" @click="handlePatchDel">批量删除</el-button>-->
-<!--      </div>-->
-<!--      <el-table-->
-<!--          @selection-change="handleSelectionChange"-->
-<!--          :data="userList">-->
-<!--        <el-table-column type="selection" width="55"/>-->
-<!--        <el-table-column-->
-<!--            v-for="(item) in columns"-->
-<!--            :key="item.prop"-->
-<!--            :prop="item.prop"-->
-<!--            :label="item.label"-->
-<!--            :width="item.width"-->
-<!--            :formatter="item.formatter"-->
-<!--        >-->
-<!--        </el-table-column>-->
-<!--        <el-table-column-->
-<!--            label="操作"-->
-<!--            width="150">-->
-<!--          <template #default="scope">-->
-<!--            <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>-->
-<!--            <el-button type="danger" size="small" @click="handleDel(scope.row)">删除</el-button>-->
-<!--          </template>-->
-<!--        </el-table-column>-->
-<!--      </el-table>-->
-<!--      <el-pagination-->
-<!--          class="pagination"-->
-<!--          background-->
-<!--          layout="prev, pager, next, jumper"-->
-<!--          :total="pager.total"-->
-<!--          :page-size="pager.pageSize"-->
-<!--          @current-change="handleCurrentChange"-->
-<!--      />-->
-
-<!--    </div>-->
-    <base-table :columns="columns" :data="userList" @selection-change="handleSelectionChange">
+    <base-table :columns="columns" :data="userList"
+                @selection-change="handleSelectionChange"
+                @handleAction="handleAction"
+    >
       <template #action>
         <el-button type="primary" @click="handleCreate">新增</el-button>
         <el-button type="danger" @click="handlePatchDel">批量删除</el-button>
@@ -222,7 +188,7 @@ const handleSubmit = () => {
 
 // 查询事件，获取用户列表
 const handleQuery = (values) => {
-  console.log('values', values, user.value)
+  console.log('values', values, user.value);
   getUserList();
 };
 // 用户单个删除
@@ -232,6 +198,14 @@ const handleDel = async (row) => {
   });
   proxy.$message.success('删除成功');
   await getUserList();
+};
+
+const handleAction = ({index, row}) => {
+  if (index === 0) {
+    handleEdit(row);
+  } else if (index === 1) {
+    handleDel(row);
+  }
 };
 
 const handleSelectionChange = (list) => {
@@ -379,6 +353,22 @@ const columns = reactive([
   },
   {
     label: '最后登录时间', prop: 'lastLoginTime', width: 180
+  },
+  {
+    type: 'action',
+    width: 150,
+    list: [
+      {
+        type: 'primary',
+        text: '编辑',
+        visible: true
+      },
+      {
+        type: 'danger',
+        text: '删除',
+        visible: true
+      }
+    ]
   },
 ]);
 </script>
