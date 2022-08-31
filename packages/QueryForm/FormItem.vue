@@ -1,15 +1,18 @@
 <template>
-  <div>
-    <div class="query-form">
-              <el-form-item label="用户ID" prop="userId">
-<!--                <el-input v-model="user.userId" placeholder="请输入用户ID"></el-input>-->
-              </el-form-item>
-    </div>
-  </div>
+  <el-form-item :prop="item.model">
+    <el-input v-if="item.type === 'input'" v-bind="$attrs"></el-input>
+    <el-select v-else-if="item.type === 'select'" v-bind="$attrs">
+      <el-option v-for="option in item.options"
+        :key="option.value"
+        v-bind="option"
+      />
+    </el-select>
+  </el-form-item>
 </template>
 <script>
 export default {
   name: 'FormItem',
+  props: ["item"],
   data(){
     return {
 

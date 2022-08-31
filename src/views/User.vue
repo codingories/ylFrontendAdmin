@@ -3,7 +3,7 @@
     <!--    <h3>用户管理</h3>-->
     <div class="query-form">
       <query-form
-          :form="form" v-model="user" @handleQuery="handleQuery" @reset="handleReset('form')"
+          :form="form" v-model="user" @update:handleQuery="handleQuery" @reset="handleReset('form')"
       ></query-form>
       <!--      <el-form :inline="true" :model="user" ref="form">-->
       <!--        <el-form-item label="用户ID" prop="userId">-->
@@ -142,9 +142,9 @@ const user = ref({
 const form = [
   {
     type: 'input',
-    label: '用户ID',
-    model: 'userID',
-    placeholder: '请输入用户ID',
+    label: '用户Id',
+    model: 'userId',
+    placeholder: '请输入用户Id',
   },
   {
     type: 'input',
@@ -194,7 +194,7 @@ onMounted(() => {
 });
 // 获取用户表格数据
 const getUserList = async () => {
-  let params = {...user, ...pager};
+  let params = {...user.value, ...pager};
   try {
     const {list, page} = await api.getUserList(params);
     userList.value = list;
@@ -236,6 +236,7 @@ const handleSubmit = () => {
 
 // 查询事件，获取用户列表
 const handleQuery = (values) => {
+  console.log('values', values, user.value)
   getUserList();
 };
 // 用户单个删除
