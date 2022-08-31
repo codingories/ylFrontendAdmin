@@ -1,7 +1,7 @@
 <template>
   <!--  会渲染组件到里面,默认的根组件-->
-<!--  <router-view></router-view>-->
-  <v-input v-model="userName" v-model:title="title" @update:handleSubmit="handleSubmit"></v-input>
+  <router-view></router-view>
+<!--  <v-input v-model="userName" v-model:title="title" @update:handleSubmit="handleSubmit"></v-input>-->
 </template>
 <script>
 import VInput from "./views/VInput.vue"

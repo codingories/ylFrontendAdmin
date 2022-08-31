@@ -45,19 +45,21 @@ import {getCurrentInstance, reactive} from "vue"
 
 export default {
   name: 'QueryForm',
-  props: ["form"],
+  props: ["modelValue", "form"],
+  emits: ["update:modelValue"],
   components: {FormItem},
-  setup(props) {
+  setup(props, context) {
     const {proxy} = getCurrentInstance()
     const form = props.form
-    const queryModel = reactive({
-
-    })
+    const queryModel = reactive({})
     const handleReset = () => {
       proxy.refs.queryForm.resetFields()
     }
     const handleQuery = () => {
-
+      console.log('1111')
+      context.emit("update:modelValue", {userId: 888})
+      context.emit("handleQuery", {userId: 888})
+      console.log('2222')
     }
     return {
       handleQuery,
