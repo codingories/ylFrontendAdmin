@@ -29,26 +29,39 @@
         </el-table-column>
       </template>
     </el-table>
-    <!--    <el-pagination-->
-    <!--        class="pagination"-->
-    <!--        background-->
-    <!--        layout="prev, pager, next, jumper"-->
-    <!--        :total="pager.total"-->
-    <!--        :page-size="pager.pageSize"-->
-    <!--        @current-change="handleCurrentChange"-->
-    <!--    />-->
+        <el-pagination
+            class="pagination"
+            background
+            layout="prev, pager, next, jumper"
+            :total="pager.total"
+            :page-size="pager.pageSize"
+            @current-change="handleCurrentChange"
+        />
   </div>
 </template>
 <script>
 export default {
   name: 'BaseTable',
-  props: ["columns"],
-  setup(props, context) {
+  props: ["columns", "pager"],
+  setup(props, {emit}) {
+    /**
+     *
+     * @param index {number} 索引
+     * @param row {object} 行数据
+     */
     const handleAction = (index, row) => {
-      context.emit("handleAction", {index, row: {...row}})
+      emit("handleAction", {index, row: {...row}})
+    }
+    /**
+     * 分页改变
+     *  @param pageNum {number} 页码
+     */
+    const handleCurrentChange = (pageNum) => {
+      emit("handleCurrentChange", pageNum)
     }
     return {
-      handleAction
+      handleAction,
+      handleCurrentChange
     }
   },
 }

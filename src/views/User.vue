@@ -7,8 +7,10 @@
       ></query-form>
     </div>
     <base-table :columns="columns" :data="userList"
+                :pager="pager"
                 @selection-change="handleSelectionChange"
                 @handleAction="handleAction"
+                @handleCurrentChange="handleCurrentChange"
     >
       <template #action>
         <el-button type="primary" @click="handleCreate">新增</el-button>
@@ -356,6 +358,7 @@ const columns = reactive([
   },
   {
     type: 'action',
+    label: '操作',
     width: 150,
     list: [
       {
