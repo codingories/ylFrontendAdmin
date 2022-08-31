@@ -8,7 +8,7 @@ import router from "./router/index.js"
 import request from "./utils/request.js"
 import storage from "./utils/storage.js"
 import store from "./store"
-import QueryForm from "../packages/QueryForm/index.js"
+import Rocket from "../packages"
 
 
 import api from "./api"
@@ -20,7 +20,7 @@ const app = createApp(App);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
-app.use(ElementPlus, {size: 'small'}).use(QueryForm)
+app.use(ElementPlus, {size: 'small'}).use(Rocket)
 app.use(store)
 
 app.directive('has', {

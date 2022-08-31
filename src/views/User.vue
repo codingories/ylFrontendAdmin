@@ -5,65 +5,50 @@
       <query-form
           :form="form" v-model="user" @update:handleQuery="handleQuery" @reset="handleReset('form')"
       ></query-form>
-      <!--      <el-form :inline="true" :model="user" ref="form">-->
-      <!--        <el-form-item label="用户ID" prop="userId">-->
-      <!--          <el-input v-model="user.userId" placeholder="请输入用户ID"></el-input>-->
-      <!--        </el-form-item>-->
-      <!--        <el-form-item label="用户名称" prop="userName">-->
-      <!--          <el-input v-model="user.userName" placeholder="请输入用户名称"-->
-      <!--          ></el-input>-->
-      <!--        </el-form-item>-->
-      <!--        <el-form-item label="用户状态" prop="state">-->
-      <!--          <el-select v-model="user.state">-->
-      <!--            <el-option :value="0" label="所有"></el-option>-->
-      <!--            <el-option :value="1" label="在职"></el-option>-->
-      <!--            <el-option :value="2" label="离职"></el-option>-->
-      <!--            <el-option :value="3" label="试用期"></el-option>-->
-      <!--          </el-select>-->
-      <!--        </el-form-item>-->
-      <!--        <el-form-item>-->
-      <!--          <el-button type="primary" @click="handleQuery">查询</el-button>-->
-      <!--          <el-button @click="handleReset('form')">重置</el-button>-->
-      <!--        </el-form-item>-->
-      <!--      </el-form>-->
     </div>
-    <div class="base-table">
-      <div class="action">
+<!--    <div class="base-table">-->
+<!--      <div class="action">-->
+<!--        <el-button type="primary" @click="handleCreate">新增</el-button>-->
+<!--        <el-button type="danger" @click="handlePatchDel">批量删除</el-button>-->
+<!--      </div>-->
+<!--      <el-table-->
+<!--          @selection-change="handleSelectionChange"-->
+<!--          :data="userList">-->
+<!--        <el-table-column type="selection" width="55"/>-->
+<!--        <el-table-column-->
+<!--            v-for="(item) in columns"-->
+<!--            :key="item.prop"-->
+<!--            :prop="item.prop"-->
+<!--            :label="item.label"-->
+<!--            :width="item.width"-->
+<!--            :formatter="item.formatter"-->
+<!--        >-->
+<!--        </el-table-column>-->
+<!--        <el-table-column-->
+<!--            label="操作"-->
+<!--            width="150">-->
+<!--          <template #default="scope">-->
+<!--            <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>-->
+<!--            <el-button type="danger" size="small" @click="handleDel(scope.row)">删除</el-button>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
+<!--      </el-table>-->
+<!--      <el-pagination-->
+<!--          class="pagination"-->
+<!--          background-->
+<!--          layout="prev, pager, next, jumper"-->
+<!--          :total="pager.total"-->
+<!--          :page-size="pager.pageSize"-->
+<!--          @current-change="handleCurrentChange"-->
+<!--      />-->
+
+<!--    </div>-->
+    <base-table :columns="columns" :data="userList" @selection-change="handleSelectionChange">
+      <template #action>
         <el-button type="primary" @click="handleCreate">新增</el-button>
         <el-button type="danger" @click="handlePatchDel">批量删除</el-button>
-      </div>
-      <el-table
-          @selection-change="handleSelectionChange"
-          :data="userList">
-        <el-table-column type="selection" width="55"/>
-        <el-table-column
-            v-for="(item) in columns"
-            :key="item.prop"
-            :prop="item.prop"
-            :label="item.label"
-            :width="item.width"
-            :formatter="item.formatter"
-        >
-        </el-table-column>
-        <el-table-column
-            label="操作"
-            width="150">
-          <template #default="scope">
-            <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="small" @click="handleDel(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-pagination
-          class="pagination"
-          background
-          layout="prev, pager, next, jumper"
-          :total="pager.total"
-          :page-size="pager.pageSize"
-          @current-change="handleCurrentChange"
-      />
-
-    </div>
+      </template>
+    </base-table>
     <el-dialog v-model="showModal" title="用户新增">
       <el-form ref="dialogForm" :model="userForm" :label-width="100" :rules="rules">
         <el-form-item label="用户名" prop="userName">
@@ -130,6 +115,7 @@ import {getCurrentInstance, onMounted, reactive, ref, toRaw} from 'vue';
 import api from '../api/index.js';
 import utils from '../utils/utils.js';
 import QueryForm from '../../packages/QueryForm/QueryForm.vue';
+import BaseTable from '../../packages/BaseTable/BaseTable.vue';
 
 const {proxy, ctx} = getCurrentInstance(); // ctx调用全局会有问题, 通过proxy来调用全局方法属性
 
@@ -352,6 +338,9 @@ const getRoleList = async () => {
 
 // 定义动态表格头
 const columns = reactive([
+  {
+    type: 'selection'
+  },
   {
     label: '用户ID', prop: 'userId'
   },
