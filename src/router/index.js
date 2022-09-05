@@ -111,8 +111,11 @@ async function loadAsyncRoutes() {
   }
 }
 
-await loadAsyncRoutes()
+loadAsyncRoutes().then(
+  res=>{
 
+  }
+)
 
 
 // 判断当前地址是否可以访问
