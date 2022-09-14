@@ -6,6 +6,14 @@ import utils from "../utils/utils"
 const modules = import.meta.glob('../views/*.vue')
 
 const routes = [
+  // {
+  //   name: 'main',
+  //   path: '/',
+  //   meta: {
+  //     title: '登录'
+  //   },
+  //   component: () => import('@/views/Login.vue'),
+  // },
   {
     name: 'home',
     path: '/',
@@ -113,7 +121,7 @@ async function loadAsyncRoutes() {
 
 loadAsyncRoutes().then(
   res=>{
-
+    console.log('载入路由成功')
   }
 )
 

@@ -265,8 +265,8 @@ const handleEdit = (row) => {
   // Object.assign(userForm, row);
   // 等待dom渲染完成再执行，初始状态是空
   proxy.$nextTick(() => {
-    // 把row的数据浅拷贝给userForm
-    Object.assign(userForm, row);
+    // 把row的数据浅拷贝给userFor vm
+
     console.log('userForm', userForm);
   });
 };

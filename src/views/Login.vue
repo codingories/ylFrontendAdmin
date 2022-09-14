@@ -2,7 +2,7 @@
   <div class="login-wrapper">
     <div class="modal">
       <el-form ref="userFormRef" :model="user" status-icon :rules="rules">
-        <div class="title">火星</div>
+        <div class="title">手撸Koa2+Vue3管理后台</div>
         <el-form-item prop="userName">
           <el-input type="text" prefix-icon="User" v-model="user.userName"/>
         </el-form-item>
@@ -15,12 +15,40 @@
           </el-button>
         </el-form-item>
       </el-form>
+      <div class="admin">
+        <span>系统管理员账号:admin 密码:admin,用于添加账号等系统管理功能</span>
+      </div>
+
+      <div class="demo">
+        <div>
+          <span>审批流演示</span>
+        </div>
+
+        <div>
+          审批发起，测试账号:jack 密码:admin
+        </div>
+        <div>
+          到二级部门，人事部门进行审批，测试账号:Baidu 密码:123456，审批通过
+        </div>
+        <div>
+          到三级部门，财务部门进行最终审批，测试账号:Ali 密码:123456，审批流结束
+        </div>
+        <div>
+          前端代码仓库:
+          <a href="https://github.com/codingories/myKoa2AdminFE" target="_blank">这里</a>
+        </div>
+        <div>
+          后端代码仓库:
+          <a href="https://github.com/codingories/myKoa2AdminServer" target="_blank">这里</a>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 
 <script setup>
+const modules = import.meta.glob("../views/**.vue")
 import {reactive, ref} from "vue"
 import api from '../api'
 import {useRouter} from "vue-router"
@@ -48,15 +76,20 @@ async function loadAsyncRoutes() {
   let userInfo = storage.getItem("userInfo") || {}
   if (userInfo.token) {
     try {
-      const {menuList} = API.getPermissionList()
+      const {menuList} = await API.getPermissionList()
       const routes = utils.generateRoute(menuList)
       routes.map(route => {
-        let url = `../views/${route.component}.vue`
-        route.component = () => import(url)
+        // let url = `../views/${route.component}.vue`
+        // route.component = () => import(url)
+        let url = `./${route.component}.vue`
+        console.log('url', url)
+        console.log('modules', modules)
+        route.component =  modules[/* @vite-ignore */ url]
+        console.log(route)
         router.addRoute("home", route)
       })
     } catch (error) {
-
+      console.log('登录页面error' + error)
     }
   }
 }
@@ -104,7 +137,7 @@ export default {
     box-shadow: 0 0 10px 3px #c7c9cb4d;
 
     .title {
-      font-size: 50px;
+      font-size: 30px;
       line-height: 1.5;
       text-align: center;
       margin-bottom: 30px;
@@ -112,6 +145,19 @@ export default {
 
     .btn-login {
       width: 100%;
+    }
+  }
+  .admin {
+    line-height: 1.5;
+    color: #409eff;
+  }
+  .demo {
+    line-height: 1.5;
+    //text-align: center;
+    font-size: 13px;
+    color: #67c23a;
+    a {
+      color: #409eff;
     }
   }
 }

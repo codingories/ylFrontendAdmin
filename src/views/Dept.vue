@@ -147,7 +147,6 @@ export default {
     },
     handleSubmit() {
       this.$refs.dialogForm.validate(async (valid) => {
-        console.log('valid->', valid)
         if (valid) {
           let params = {...this.deptForm, action: this.action}
           delete params.user
